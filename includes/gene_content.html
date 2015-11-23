@@ -1,0 +1,55 @@
+<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingOne">
+      <h4 class="panel-title accordion-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          Gene information
+        </a>
+      </h4>
+    </div>
+    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+      <div class="panel-body" id='gene_info'>
+      </div> 
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingTwo">
+      <h4 class="panel-title accordion-title">
+        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          Gene results
+        </a>
+      </h4>
+    </div>
+    <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+      <div class="panel-body" id='genes_per_patient'>
+        
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingThree">
+      <h4 class="panel-title accordion-title">
+        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          Phenotype results
+        </a>
+      </h4>
+    </div>
+    <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+      <div class="panel-body" id='patients_per_phenotype'>
+        <div class="dropdown pull-right">
+ 			<button class="btn btn-default dropdown-toggle" type="button" id="selectFilterOpt" data-toggle="dropdown" aria-haspopup="true">
+    			Phenotypes of... 
+    			<span class="caret"></span>
+ 			</button>
+  			<ul class="dropdown-menu" aria-labelledby="selectFilterOpt" id='phenotype-optionList'>
+    			<li><a href="#" id="phenoOption-allPatients" class="selection phenoOption">All patients</a></li>
+    			<li><a href="#" id="phenoOption-deletion" class="selection phenoOption">Patients with deletion</a></li>
+    			<li><a href="#" id="phenoOption-duplication" class="selection phenoOption">Patients with duplication</a></li>
+  			</ul>
+		</div>
+		<h4 id='genePhenoTable-title'>All patients</h4>
+        <div id="genePhenoTable"></div>
+      </div>
+    </div>
+  </div>
+</div>

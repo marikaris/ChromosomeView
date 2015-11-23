@@ -1,0 +1,90 @@
+.tab-pane{
+	margin:2em;
+}
+body {
+	font: 12px sans-serif;	
+}
+#figure{
+	margin-bottom: 50px;
+	padding-left: 3em;
+	padding-right: 3em;
+	max-height: 50vh;
+	overflow: auto;		
+}
+#genes_per_patient{
+	overflow:auto;
+}
+.chart{
+	cursor:pointer;
+}
+a{
+	cursor:pointer;
+}
+.accordion-title{
+	color: grey;
+}
+#hide_genes{
+	margin: 1em;
+	float: right;
+}	
+#show_genes{
+	margin: 1em;
+	float: right;
+}
+.highlight{
+	background-color: yellow !important;
+}
+.hidden{
+	display: none;
+}
+#info{
+	max-height:25vh;
+	overflow: auto; 
+}
+#buttons{
+	margin-bottom: 2em;
+}
+.selection.active{
+  background-color:#3366CC !important;
+}
+.select2-container{
+	width: 25vw;
+	min-width: 20em;
+}
+.search-stuff{
+	width: 30vw;
+	min-width: 35em;
+}
+.accordion-toggle{
+	width: 50vw;
+	min-width: 50em;
+}
+.accordion-body{
+	width: 50vw;
+	min-width: 50em;
+}
+.search_button{
+	margin-bottom:3em;
+	margin-top: -2.4em;
+	position: relative;
+    	left: 2em;
+}
+#draggable1, #draggable2, .draggableItem{
+	width: 2em;
+}
+#bar{
+	width: 50vw;
+}
+#draggable1, #draggablePheno1{
+	margin-bottom: -1.4em;
+}
+#chromosome{
+	margin-top: 2em;
+	width: 0.5vw;
+}
+.tick{
+	margin-bottom: 1em;
+}
+.panel{
+	margin-top: 3em;
+}
