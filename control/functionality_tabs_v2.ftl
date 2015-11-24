@@ -133,7 +133,7 @@
         $("#showRegion").css('display', 'none');
         $("#showPatient").css('display', 'inline');
     });
-    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/ef411a1cf62e79dbc9ed461dce2cc3f99ee5776e/phenotypeViewer_v2.js', function(){
+    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/ec5938b14718fd25c6e569ef25d13997e1caebe9/phenotypeViewer_v2.js', function(){
     	getPhenotypes('http://localhost:8080/api/v2/chromosome6_a_c');
    	 	getPhenotypes('http://localhost:8080/api/v2/chromome6_d_h');
     	getPhenotypes('http://localhost:8080/api/v2/chromome6_i_L');

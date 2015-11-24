@@ -1,3 +1,4 @@
+var geneArray = [];
 function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 /**plotBarsOfPatients plots the chromosome bars of the patients
 * The algorithm of the function... 
@@ -128,13 +129,13 @@ function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 			}
 			//If the checkbox changes, check if it is checked, if it is: show the bar, else: hide it
 			$(".checkbox").on('change', function(){
+				var id= $(this).data('id');
+				removeGenesFromTable(id);
 				if(this.checked){
-					var id= $(this).data('id');
 					$('#'+id).css('display', 'inline');
 					$('#stop_pos'+id).css('display','block');
 					$('#start_pos'+id).css('display','block');						
 				}else{
-					var id = $(this).data('id');
 					$('#'+id).css('display', 'none');
 					$('#start_pos'+id).css('display','none');
 					$('#stop_pos'+id).css('display','none');
@@ -255,7 +256,6 @@ function getGenesOfPatients(patients, callbackFunction){
 	//to the genesInRegion object and counted. 
 	var lastGeneOfLastPatient = $.Deferred();
 	//This array is filled later with all the gene objects and then sorted on the count variable in the objects
-	var geneArray = [];
 	$.each(patients, function(patient_iteration, patient){
 		var start = patient['start'];
 		var stop = patient['stop'];
@@ -678,3 +678,9 @@ function checkPatients(patient, symptoms){
 	});
 	return matches;
 };
+function removeGenesFromTable(id){
+	console.log(id);	
+	var box = $('check'+id);
+	var isChecked = box.is(':checked');
+	console.log(isChecked);
+}
