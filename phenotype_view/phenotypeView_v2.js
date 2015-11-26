@@ -1,8 +1,10 @@
+//this array will be filled with all genes that are in the affected region of the patients
 var geneArray = [];
+//this array contains the selection of the patients that should be shown
 var checkedPatients = [];
 function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 /**plotBarsOfPatients plots the chromosome bars of the patients
-* The algorithm of the function... 
+* The algorithm of the function:
 * deletion = [];
 * duplication = [];
 * for each patient:
@@ -554,54 +556,66 @@ function checkQuestionnaireData(symptomList, cutOffClass, inputDiv, callbackFunc
 		}
 	}
 	//here the answers of the questionnaire parts are gathered
+	var ac_def = $.Deferred();
+	var dh_def = $.Deferred();
+	var il_def = $.Deferred();
 	$.get('/api/v2/chromosome6_a_c').done(function(a_c){
-		patients_a_c = a_c['items'];
-		$.each(patients_a_c, function(index, patient_ac){
-			//here the function that checks the symptoms of the patients is called
-			ac_matches = checkPatients(patient_ac, symptomList);
-			//add the patients ownerUsername as key to the matchCount object and the matches as value. 
-			matchCount[patient_ac['ownerUsername']]=ac_matches;
+		var patients_a_c = a_c['items'];
+		$.each(patients_a_c, function(ac_index, patient_ac){
+			matchCount[patient_ac['ownerUsername']] = 0;
+			//here the function that checks the symptoms of the patients is called and add the patients ownerUsername as key to the matchCount object and the matches as value. 
+			checkPatients(patient_ac, symptomList, function(ac_matches){matchCount[patient_ac['ownerUsername']] += ac_matches});
+			if(patients_a_c.length - 1 === ac_index){
+				ac_def.resolve();
+			}
 		});
 		$.get('/api/v2/chromome6_d_h').done(function(d_h){
-			patients_d_h = d_h['items'];
-			$.each(patients_d_h, function(index, patient_dh){
-				dh_matches = checkPatients(patient_dh, symptomList);
-				//add these matches also to the object
-				matchCount[patient_dh['ownerUsername']] += dh_matches;
+			var patients_d_h = d_h['items'];
+			$.each(patients_d_h, function(dh_index, patient_dh){
+				checkPatients(patient_dh, symptomList, function(dh_matches){matchCount[patient_dh['ownerUsername']] += dh_matches});
+				if(patients_d_h.length - 1 === dh_index){
+					dh_def.resolve();
+				}
 			});
 		});
 		$.get('/api/v2/chromome6_i_L').done(function(i_l){
-			patients_i_l = i_l['items'];
-			$.each(patients_i_l, function(index, patient_il){
-				il_matches = checkPatients(patient_il, symptomList);
-				//add these matches also to the object
-				matchCount[patient_il['ownerUsername']] += il_matches;
+			var patients_i_l = i_l['items'];
+			$.each(patients_i_l, function(il_index, patient_il){
+				checkPatients(patient_il, symptomList, function(il_matches){matchCount[patient_il['ownerUsername']] += il_matches});
+				if(patients_i_l.length - 1 === il_index){
+					il_def.resolve();
+				}
 			});
-			patientData = [];
-			//get the arraydata
-			$.get('/api/v2/chromosome6_array', function(arrayData){
-				//get the patients
-				var patients = arrayData['items'];
-				$.each(patients, function(index, patient){
-					name = patient['ownerUsername'];
-					//check for each patient if he or she has enough matches with the selected symptoms
-					if(matchCount[name] >= cutOff){
-						//if so, add the patients array information to the patientData
-						patientObj = {};
-						patientObj['patient_id'] = name;
-						patientObj['start'] = patient["Start_positie_in_Hg19"];
-						patientObj['stop'] = patient["Stop_positie_in_Hg19"];
-						patientObj['mutation'] = patient['imbalance']['label'];
-						patientData.push(patientObj);
-					}
+			il_def.done(function(){
+				ac_def.done(function(){
+					dh_def.done(function(){
+						patientData = [];
+						//get the arraydata
+						$.get('/api/v2/chromosome6_array').done(function(arrayData){
+							//get the patients
+							var patients = arrayData['items'];
+							$.each(patients, function(patient_index, patient){
+								name = patient['ownerUsername'];
+								//check for each patient if he or she has enough matches with the selected symptoms
+								if(matchCount[name] >= cutOff){
+									//if so, add the patients array information to the patientData
+									patientObj = {};
+									patientObj['patient_id'] = name;
+									patientObj['start'] = patient["Start_positie_in_Hg19"];
+									patientObj['stop'] = patient["Stop_positie_in_Hg19"];
+									patientObj['mutation'] = patient['imbalance']['label'];
+									patientData.push(patientObj);
+								};
+							});
+							callbackFunction(symptomList, patientData, "#ph_result");
+						});
+					});
 				});
-				//process the data
-				callbackFunction(symptomList, patientData, "#ph_result");
 			});
 		});	
 	});	
 };
-function checkPatients(patient, symptoms){
+function checkPatients(patient, symptoms, callback){
 /** checkPatients needs as input a patient and a symptomlist
 * it runs through all questions and answers in the patient and compares them with the
 * symptoms that are selected. 
@@ -684,7 +698,7 @@ function checkPatients(patient, symptoms){
 			}
 		});
 	});
-	return matches;
+	callback(matches);
 };
 function removeGenesFromTable(id){
 	var box = $('.check'+id);
@@ -715,7 +729,6 @@ function editGenes(){
 			newGeneObj.stop = geneObj.stop;
 			newGeneObj.patients = newPatients;
 			newGeneObj.count= newPatients.length;	
-			console.log(geneArray.length - 1 , genePositionInArray , patients.length-1	 , patientIndex);
 			if(patients.length-1 === patientIndex){
 				newGeneArray.push(newGeneObj);
 				if( geneArray.length - 1 === genePositionInArray){
@@ -724,7 +737,6 @@ function editGenes(){
 						return molgenis.naturalSort(gene2.count, gene1.count);
 					});	
 					putGenesInTable(newGeneArray, '#table_body');
-					console.log(newGeneArray);
 				};
 			};
 		});
