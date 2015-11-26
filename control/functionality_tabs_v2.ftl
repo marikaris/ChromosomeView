@@ -88,7 +88,7 @@
                     <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
                 </div>
                 <div id='chromosome_bar'></div>
-                Between <span><input type="number" name="pos" val = 0 id='posX-1'></span> and <span><input type="number" name="start" val = 0 id='posX-2'></span>
+                Between <span><input type="number" name="pos" value = 0 id="posX-1"></span> and <span><input type="number" name="start" value = 0 id="posX-2"></span>
             </div>
             <br/>
             <button id="selectRegion" class="btn btn-primary">Get patients</button>
@@ -150,6 +150,7 @@
     });	
 </script>
 <script>
+<#--this part makes the gene view-->
     var url='/api/v2/genes?num=4000';
     $("#tagPicker_genes").select2({
         closeOnSelect:false
