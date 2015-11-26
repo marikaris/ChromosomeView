@@ -1,4 +1,5 @@
 var geneArray = [];
+var checkedPatients = [];
 function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 /**plotBarsOfPatients plots the chromosome bars of the patients
 * The algorithm of the function... 
@@ -53,6 +54,9 @@ function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 	//put the genomic information of each patient in the deletion and duplication array 
 	$.each(patients, function(index, patient){
 		id = patient['patient_id'];
+		if($.inArray(id, checkedPatients)=== -1){
+			checkedPatients.push(id);
+		}
 		var start = patient['start'];
 		var stop = patient['stop'];
 		var mutation = patient['mutation'];
@@ -129,16 +133,18 @@ function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 			}
 			//If the checkbox changes, check if it is checked, if it is: show the bar, else: hide it
 			$(".checkbox").on('change', function(){
+				resetTable();
 				var id= $(this).data('id');
-				removeGenesFromTable(id);
 				if(this.checked){
 					$('#'+id).css('display', 'inline');
 					$('#stop_pos'+id).css('display','block');
-					$('#start_pos'+id).css('display','block');						
+					$('#start_pos'+id).css('display','block');	
+					removeGenesFromTable(id);					
 				}else{
 					$('#'+id).css('display', 'none');
 					$('#start_pos'+id).css('display','none');
 					$('#stop_pos'+id).css('display','none');
+					removeGenesFromTable(id);
 				}
 			});	   			   	   	
 	   	});
@@ -267,6 +273,7 @@ function getGenesOfPatients(patients, callbackFunction){
 				//if the gene is in the array, it should be counted 
 				if($.inArray(gene['ensembl_id'], Object.keys(genesInRegion)) > -1){
 					genesInRegion[gene['ensembl_id']]['count']+= 1;
+					genesInRegion[gene['ensembl_id']]['patients'].push(patient['patient_id']);
 				}else{
 				//if the gene is not in the array it should be added to the array with count 1
 					genesInRegion[gene['ensembl_id']] = {};
@@ -277,6 +284,7 @@ function getGenesOfPatients(patients, callbackFunction){
 					genesInRegion[gene['ensembl_id']]['morbid_desc'] = gene['omim_morbid_description'];
 					genesInRegion[gene['ensembl_id']]['start'] = gene['start'];
 					genesInRegion[gene['ensembl_id']]['stop'] = gene['stop'];
+					genesInRegion[gene['ensembl_id']]['patients'] = [patient['patient_id']];
 				}
 				/*
 				* This statement checks: 
@@ -313,10 +321,12 @@ function putGenesInTable(genes, table_body_id){
 * The function runs through all genes and adds them to the table. 
 */
 	$.each(genes, function(i, gene){
-		$(table_body_id).append('<tr><td id="'+gene.ensembl+'">'+gene.ensembl+': '+gene.name+
-								'</td><td>'+gene.start+'...'+gene.stop+
-								'</td><td>'+gene.count+'</td><td id="'+
-								gene.morbid_acc+'">'+gene.morbid_desc+'</td></tr>');
+		if(gene.count !== 0){
+			$(table_body_id).append('<tr><td id="'+gene.ensembl+'">'+gene.ensembl+': '+gene.name+
+									'</td><td>'+gene.start+'...'+gene.stop+
+									'</td><td>'+gene.count+'</td><td id="'+
+									gene.morbid_acc+'">'+gene.morbid_desc+'</td></tr>');
+		};
 	});
 };
 
@@ -350,37 +360,35 @@ function addPatients(selectedPhenotype, patients, resultDiv){
 	if(patients.length != 0){
     	//Append the bars of the genotypes of the patients to the page in the div with the id figure
     	plotBarsOfPatients(patients, '#figure', 170805979);
-		//Add the table structure to the page
-    		$("#info").html('<br/><br/><div class="table-responsive"><table class = "table table-hover" id="gene_table"><thead>'+
-    			        		'<th>Gene</th><th>Position</th><th>Number of patients</th><th>Literature</th><th></th></thead><tbody id="table_body"></tbody></table></div>');
-    		//When the button that has the id 'be_gone' is clicked, when the checkbox of a bar is unchecked, the bar, and its id and checkbox will be hidden on the page
-    		$("#be_gone").click(function(){
-    			//hide the unchecked checkboxes
-			    var unchecked = $("input:checkbox:not(:checked)");
-    			$.each(unchecked, function(){
-				    var id = $(this).data('id');
-    				//Hide the checkbox
-    			    $('.check'+id).css('display','none');
-				    //Hide the patient id
-    				$('#bar_id'+id).css('display','none');						
-    			});
+		resetTable();
+    	//When the button that has the id 'be_gone' is clicked, when the checkbox of a bar is unchecked, the bar, and its id and checkbox will be hidden on the page
+    	$("#be_gone").click(function(){
+    		//hide the unchecked checkboxes
+		    var unchecked = $("input:checkbox:not(:checked)");
+			$.each(unchecked, function(){
+				var id = $(this).data('id');
+    			//Hide the checkbox
+    		    $('.check'+id).css('display','none');
+			    //Hide the patient id
+				$('#bar_id'+id).css('display','none');						
     		});
-    		//Get all the checkboxes with ids back
-    		$("#come_back").click(function(){
-				$('.checkbox').css('display', 'inline');
-				$('.check_span').css('display', 'inline');
-    		});
-    		//Select all checkboxes
-    		$("#select_all").click(function(){
-				$('.checkbox').prop('checked', true);
-				//Trigger the change event of the checkbox to check them again
-    			$('.checkbox').trigger('change');
-    		});
-    		$("#deselect_all").click(function(){
-				$('.checkbox').prop('checked', false);
-    			//Trigger the change event of the checkbox to check them again
-				$('.checkbox').trigger('change');
-    		});
+    	});
+    	//Get all the checkboxes with ids back
+		$("#come_back").click(function(){
+			$('.checkbox').css('display', 'inline');
+			$('.check_span').css('display', 'inline');
+    	});
+    	//Select all checkboxes
+    	$("#select_all").click(function(){
+			$('.checkbox').prop('checked', true);
+			//Trigger the change event of the checkbox to check them again
+    		$('.checkbox').trigger('change');
+    	});
+		$("#deselect_all").click(function(){
+			$('.checkbox').prop('checked', false);
+    		//Trigger the change event of the checkbox to check them again
+			$('.checkbox').trigger('change');
+		});
     }else{
 	    $('#buttons').text('No patients found with this genotype');
     	$('#figure').text('');
@@ -679,8 +687,51 @@ function checkPatients(patient, symptoms){
 	return matches;
 };
 function removeGenesFromTable(id){
-	console.log(id);	
-	var box = $('check'+id);
+	var box = $('.check'+id);
 	var isChecked = box.is(':checked');
-	console.log(isChecked);
-}
+	if(isChecked && $.inArray(id, checkedPatients)=== -1){
+		checkedPatients.push(id);
+	}else if (!isChecked && $.inArray(id, checkedPatients)!== -1){
+		var index = checkedPatients.indexOf(id);
+		checkedPatients.splice(index, 1);
+	}
+	editGenes();
+};
+function editGenes(){
+	var newGeneArray = [];
+	$.each(geneArray, function(genePositionInArray, geneObj){
+		var patients = geneObj['patients'];
+		var newGeneObj={};
+		var newPatients = [];
+		$.each(patients, function(patientIndex, patientWithGene){
+			if($.inArray(patientWithGene, checkedPatients) !== -1){
+				newPatients.push(patientWithGene);		
+			}
+			newGeneObj.ensembl = geneObj.ensembl;
+			newGeneObj.morbid_acc = geneObj.morbid_acc;
+			newGeneObj.morbid_desc = geneObj.morbid_desc;
+			newGeneObj.name = geneObj.name;
+			newGeneObj.start = geneObj.start;
+			newGeneObj.stop = geneObj.stop;
+			newGeneObj.patients = newPatients;
+			newGeneObj.count= newPatients.length;	
+			console.log(geneArray.length - 1 , genePositionInArray , patients.length-1	 , patientIndex);
+			if(patients.length-1 === patientIndex){
+				newGeneArray.push(newGeneObj);
+				if( geneArray.length - 1 === genePositionInArray){
+					//sort the array on the nummer of genes counted in this selection (thanks to Chao Pang =) )
+					newGeneArray.sort(function(gene1, gene2){
+						return molgenis.naturalSort(gene2.count, gene1.count);
+					});	
+					putGenesInTable(newGeneArray, '#table_body');
+					console.log(newGeneArray);
+				};
+			};
+		});
+	});
+};
+function resetTable(){
+	//Add the table structure to the page
+    $("#info").html('<br/><br/><div class="table-responsive"><table class = "table table-hover" id="gene_table"><thead>'+
+    			    '<th>Gene</th><th>Position</th><th>Number of patients</th><th>Literature</th><th></th></thead><tbody id="table_body"></tbody></table></div>');
+};
