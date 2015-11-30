@@ -1,19 +1,33 @@
+//the name of the last gene will be saved, to check on later
 var lastGene;
+/*genePatients and patientGenes are saved to make selection of certain genes or patients faster, 
+it does not take very much time while loading, but reloading it, would take a lot of time.*/
+//all patients per gene
 var genePatients = {};
+//all genes per patient
 var patientGenes={};
+//This variable is used as counter, when done = 3, the script is done
 var done = 0;
+//phenotypes are the phenotypes which are counted
 var phenotypes = {};
+//phenoList is the sorted array with the objects from phenotypes, with the count put in them, sorted on the count
 var phenoList = [];
+//the last patients will be saved, to check on later
 var lastPatient;
+//all patients with a deletion and duplication will be saved separately (to select these patients when requested)
 var patientsDeletion = [];
 var patientsDuplication = [];
+//the global variable that will be filled with the genes, selected by the user
 var selectedGenes = [];
 function processSelectedGenes(checkedGenes){
+/**This function processes the selected genes, the input is the list of selected genes from the select bar.*/
+	//save the list in the global variable "selectedGenes"
 	selectedGenes = checkedGenes;
+	//empty the phenotypes for a new selection
 	phenotypes={};
+	lastPatient = undefined;
+	lastGene = undefined;
 	phenoList =[];
-	//this function calls loads per gene two functions: loadEnsemblInfoOfGene and loadPatientsWithGene
-	localStorage.setItem('phenoCount', JSON.stringify({}));
 	//saved to make altering the table when selecting only one gene possible. 
 	var selectionLength = selectedGenes.length;	
 	lastGene = selectedGenes[selectionLength-1]['id'];
@@ -29,7 +43,7 @@ function processSelectedGenes(checkedGenes){
     });
 };
 function loadEnsemblInfoOfGene(geneId, resultDiv){
-	//This function loads the infmation of a gene from ensembl
+	/**This function loads the infmation of a gene from ensembl*/
 	$.get('http://rest.ensembl.org/lookup/id/'+geneId+'?content-type=application/json').done(
         function(geneInfo){
         var name = geneInfo['display_name'];
@@ -108,6 +122,11 @@ function getPatientsInRegion(start, stop, geneId, sortCallback, tableDiv, geneTa
 					getQuestionnairePartInfoOfPatient('chromome6_i_L', il_name, il_id, geneId, tableDiv, sortCallback, geneTable);				
 				});
 			});
+		}else{
+			if(geneId === lastGene){
+				sortPhenotypes(function(){sortCallback(tableDiv, phenoList)});
+				putGenesPerPatientInTable(geneTable, selectedGenes);
+			}
 		};
 	});
 };
