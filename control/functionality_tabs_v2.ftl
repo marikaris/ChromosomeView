@@ -186,7 +186,7 @@
         var selected = $('#tagPicker_genes').select2('data');
         $('#ge_result').css('display', 'inline');
         $('#gene_info').html('');
-        $.getScript('https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/c7d4b92ead385ed21cd6bb61dada626b79c887ec/getGenes.js').done(
+        $.getScript('https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/63283c637f72caa5357acb5bd7897fd162977d41/getGenes.js').done(
             	function(){	
             processSelectedGenes(selected);
             $('.selection').mouseenter(function(){

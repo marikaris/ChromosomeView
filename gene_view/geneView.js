@@ -64,14 +64,17 @@ function loadEnsemblInfoOfGene(geneId, resultDiv){
     });
 }
 function getGeneRegion(geneId, callbackFunction){
-	//this function extracts the start and stop location of a gene, given the api id of the gene
+	/**this function extracts the start and stop location of a gene, given the api id of the gene.
+	Put in a separate function to easily put a callback in. */
 	$.get('/api/v2/genes/'+geneId).done(function(gene){
 		var region = [gene['start'], gene['stop']];
 		callbackFunction(region);
 	});
 }
 function loadPatientsWithGene(geneId, delDiv, dupDiv){
-	//this function loads per gene the patients that have the region of the gene affected. 
+	/**This function loads per gene the patients that have the region of the gene affected by calling
+	getPatientsInRegion. These functions are held separately to use the region function later on in the
+	region view. */
 	genePatients[geneId] = [];
 	getGeneRegion(geneId, function(region){
 		var start = region[0];
@@ -80,6 +83,10 @@ function loadPatientsWithGene(geneId, delDiv, dupDiv){
 	});	
 };
 function getPatientsInRegion(start, stop, geneId, sortCallback, tableDiv, geneTable){	
+	/**This function gets all patients in a region of an affected gene by calling the MOLGENIS REST API. 
+	with a query: the start position of the gene should be lower or equal than the stop postion of the patient's
+	affected region or the stop position of the gene should be greater or equal than the start postion of the 
+	patient's affected region.*/
 	$.get('/api/v2/chromosome6_array?attrs=ownerUsername,imbalance&q=Start_positie_in_Hg19=le='+
 		stop+';Stop_positie_in_Hg19=ge='+start+'&num=4000').done(function(patients_with_broken_gene){
 		var patients = patients_with_broken_gene['items'];
@@ -89,10 +96,12 @@ function getPatientsInRegion(start, stop, geneId, sortCallback, tableDiv, geneTa
 			$.each(patients, function(i, patient){
 				var name = patient['ownerUsername'];
 				var mutation = patient['imbalance']['id'];
+				//If the mutation is a homozygous or hemizygous deletion, push to deletion array
 				if(mutation === 'x0'|| mutation === 'x1'){
 					if($.inArray(name, patientsDeletion)===-1){
 						patientsDeletion.push(name);
 					};
+				//If the mutation is a duplication or triplication, push to duplication array
 				}else if(mutation === 'x3' || mutation === 'x4'){
 					if($.inArray(name, patientsDuplication)===-1){
 						patientsDuplication.push(name);
@@ -106,6 +115,7 @@ function getPatientsInRegion(start, stop, geneId, sortCallback, tableDiv, geneTa
 						patientGenes[name].push(geneId);
 					};
 				};
+				//get all the questionnaire data of one patient and process it by calling getQuestionnairePartInfoOfPatient
 				$.get('/api/v2/chromosome6_a_c?attrs=id,ownerUsername&q=ownerUsername=='+name).done(function(patient){
 					var ac_id = patient['items'][0]['id'];
 					var ac_name = patient['items'][0]['ownerUsername'];
@@ -123,6 +133,7 @@ function getPatientsInRegion(start, stop, geneId, sortCallback, tableDiv, geneTa
 				});
 			});
 		}else{
+			//if a gene is not seen affected in any patient and its the last gene, just sort the lists and add them to the tables.
 			if(geneId === lastGene){
 				sortPhenotypes(function(){sortCallback(tableDiv, phenoList)});
 				putGenesPerPatientInTable(geneTable, selectedGenes);
@@ -131,15 +142,23 @@ function getPatientsInRegion(start, stop, geneId, sortCallback, tableDiv, geneTa
 	});
 };
 function getQuestionnairePartInfoOfPatient(part, name, id, geneId, phenoTable, sortCallback, geneTable){
+/**This function calls the function that processes the answers of a part of the questionnaire*/
 	getChrAnswerData(id, part, processPatientsAnswer, function(){
+		//check of the last patient of the last gene is reached
 		if(lastGene === geneId && lastPatient === name){
+			//because there are three parts of the questionnaire, the last questions are done
+			//when the last patient of the last gene is seen 3 times, thats why it is counted
 			done+=1;
+			//when all parts of the last patient of the last gene are done (and thus done = 3), sort the genes and put them in table
 			if(done ===3){
+				//make the gene results table
 				if(geneTable!== undefined){
 					putGenesPerPatientInTable(geneTable, selectedGenes);
 				}
+				//sort the phenotypes on the count variable
 				sortPhenotypes(function(){sortCallback(phenoTable, phenoList)});
 			}
+		//this piece of code is made for the region view, because that part of the app does not need gene results
 		}else if(geneTable === undefined && lastPatient === name){
 			done+=1;
 			if(done ===3){
@@ -149,6 +168,7 @@ function getQuestionnairePartInfoOfPatient(part, name, id, geneId, phenoTable, s
 	});
 };
 function processPatientsAnswer(question, answer, notNeeded, name){
+/**This function processes the answer of the patients answer, it is used as a callback function for the getChrAnswerData function*/
 	if(question !== 'gender'&&question!=='birthdate'&&typeof answer !== 'number'&&/\d{4}-\d{2}-\d{2}/.test(answer)===false){
 		if(question+':'+answer in phenotypes){
 			if($.inArray(name, phenotypes[question+':'+answer])== -1){
@@ -160,6 +180,7 @@ function processPatientsAnswer(question, answer, notNeeded, name){
 	}
 };
 function sortPhenotypes(callback){
+/**This function sorts the phenotypes on the number of patients that have the phenotype*/
 	//first make a list with object sorted on length of patient list
 	$.each(phenotypes, function(phenotype, patients){
 		phenoObj = {};
@@ -175,12 +196,15 @@ function sortPhenotypes(callback){
 	});
 };
 function sortPhenoList(phenotypeList){
+/**This function sorts a give list with phenotypes, based on the number of patients that the phenotype matches*/
 	phenotypeList.sort(function(pheno1, pheno2){
 		return molgenis.naturalSort(pheno2.numberOfPatients, pheno1.numberOfPatients);
 	});
 	return phenotypeList;
 };
 function putPhenotypesInTable(tableDiv, phenoInfo){
+/**This function puts the phenotypes in the table. The selector of the div to put the 
+table in should be given and the phenotypes (a list with objects) */
 	$(tableDiv).html('<table id = "genePheno" class="table table-hover"></table>');
 	$('#genePheno').append('<tr><th>Phenotype</th><th># Patients</th><th>Patients</th></tr>');
 	$.each(phenoInfo, function(i, phenotype){
@@ -189,14 +213,19 @@ function putPhenotypesInTable(tableDiv, phenoInfo){
 	});
 };
 function putInDropdown(divOfDropdown, whatToPutIn, id){
+/**This function puts a gene in the drop down of the gene view,
+to select more specific information in the phenotype results*/
 	$(divOfDropdown).append('<li><a href="#" class="selection phenoOption" id="'+id+'">'+whatToPutIn+'</li>');
 };
 function selectDropDownOption(title, option){
-	//get text of clicked option
-	// for genes: get information that is asked for and put in table (using genePatients);
-	// for dup/del: use patientsDuplication and patientsDeletion
+/**This function needs the selector of the title above the phenotype table and the selected option object.
+algorithm:
+	get text of clicked option
+	for genes: get information that is asked for and put in table (using genePatients);
+	for dup/del: use patientsDuplication and patientsDeletion*/
 	var txt = option.text();
 	var phenotypes;
+	//switch all options
 	switch(txt){
 		case 'All patients':
 			phenotypes = phenoList;
@@ -207,15 +236,21 @@ function selectDropDownOption(title, option){
 		case 'Patients with duplication':
 			phenotypes = extractPatients(patientsDuplication);
 			break;
+		//when a gene is selected, the default is used
 		default:
+			//get the id of the gene
 			var id= option.attr('id');
+			//get the patients that have the gene afffected
 			var geneList = genePatients[id];
+			//extract the patients from the data using the patients that match the gene
 			phenotypes = extractPatients(geneList);
 	}
+	//change the text above the table
 	$(title).text(txt);
 	putPhenotypesInTable('#genePhenoTable', phenotypes);
 };
 function extractPatients(specList){
+/**This function needs a list with specified patients and them extracts them from the phenotypes table*/
 	var newPhenoList = [];
 	$.each(phenoList, function(index, phenoObj){
 		patients = phenoObj['patients'];
@@ -233,10 +268,13 @@ function extractPatients(specList){
 			newPhenoList.push(newPhenoObj);
 		}
 	});
+	//sort the list
 	var phenotypesWithSpec= sortPhenoList(newPhenoList);
 	return phenotypesWithSpec;
 };
 function putGenesPerPatientInTable(geneResultsTableDiv, selectedGenes){
+/**This function needs the selector of the gene results table and the list with selected genes. 
+It puts the genes per patients in the gene results table. */
 	$(geneResultsTableDiv).html('<table class="table table-hover"><thead><tr id="geneResultsHead"><th>Patient</th></tr></thead><tbody id="geneResultsBody"></tbody></table>');
 	$.each(selectedGenes, function(index, gene){
 		$('#geneResultsHead').append('<th id="'+gene.id+'">'+gene.text+'</th>');
