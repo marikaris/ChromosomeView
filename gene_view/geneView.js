@@ -22,9 +22,12 @@ function processSelectedGenes(checkedGenes){
         var gene_name = sel.text;
         putInDropdown('#phenotype-optionList', 'Patients with gene: '+gene_name, ensembl);
     	loadEnsemblInfoOfGene(ensembl, '#gene_info');
-        loadPatientsWithGene(ensembl, '#patient_deletion', '#patient_duplication');
+        $.getScript('https://rawgit.com/marikaris/845fe9c278035feb64df'+
+					'/raw/4666a221c6b40ec3043e5d5f9d46b5cccd046821/processQuestionnaireData_v2.js').done(function(){
+        	loadPatientsWithGene(ensembl, '#patient_deletion', '#patient_duplication');
+        });
     });
-}
+};
 function loadEnsemblInfoOfGene(geneId, resultDiv){
 	//This function loads the infmation of a gene from ensembl
 	$.get('http://rest.ensembl.org/lookup/id/'+geneId+'?content-type=application/json').done(
@@ -61,56 +64,53 @@ function loadPatientsWithGene(geneId, delDiv, dupDiv){
 		var stop=region[1];
 		getPatientsInRegion(start, stop, geneId, putPhenotypesInTable, '#genePhenoTable', '#genes_per_patient');
 	});	
-}
-function getPatientsInRegion(start, stop, geneId, sortCallback, tableDiv, geneTable){
+};
+function getPatientsInRegion(start, stop, geneId, sortCallback, tableDiv, geneTable){	
 	$.get('/api/v2/chromosome6_array?attrs=ownerUsername,imbalance&q=Start_positie_in_Hg19=le='+
-			stop+';Stop_positie_in_Hg19=ge='+start+'&num=4000').done(function(patients_with_broken_gene){
-			var patients = patients_with_broken_gene['items'];
-			if(patients.length !== 0){
-				var patientsLength = patients.length;
-				lastPatient = patients[patientsLength-1]['ownerUsername'];
-				$.getScript('https://rawgit.com/marikaris/845fe9c278035feb64df'+
-					'/raw/4666a221c6b40ec3043e5d5f9d46b5cccd046821/processQuestionnaireData_v2.js').done(function(){
-					$.each(patients, function(i, patient){
-						var name = patient['ownerUsername'];
-						var mutation = patient['imbalance']['id'];
-						if(mutation === 'x0'|| mutation === 'x1'){
-							if($.inArray(name, patientsDeletion)===-1){
-								patientsDeletion.push(name);
-							}
-						}else if(mutation === 'x3' || mutation === 'x4'){
-							if($.inArray(name, patientsDuplication)===-1){
-								patientsDuplication.push(name);
-							}
-						}
-						if(geneId !== ''){
-							genePatients[geneId].push(name);
-							if($.inArray(name, Object.keys(patientGenes))===-1){
-								patientGenes[name] = [geneId];
-							}else{
-								patientGenes[name].push(geneId);
-							}
-						}
-						$.get('/api/v2/chromosome6_a_c?attrs=id,ownerUsername&q=ownerUsername=='+name).done(function(patient){
-							var ac_id = patient['items'][0]['id'];
-							var ac_name = patient['items'][0]['ownerUsername'];
-							getQuestionnairePartInfoOfPatient('chromosome6_a_c', ac_name, ac_id, geneId, tableDiv, sortCallback, geneTable);
-						});
-						$.get('/api/v2/chromome6_d_h?attrs=id,ownerUsername&q=ownerUsername=='+name).done(function(patient){
-							var dh_id = patient['items'][0]['id'];
-							var dh_name =  patient['items'][0]['ownerUsername'];
-							getQuestionnairePartInfoOfPatient('chromome6_d_h', dh_name, dh_id, geneId, tableDiv, sortCallback, geneTable);
-						});
-						$.get('/api/v2/chromome6_i_L?attrs=id,ownerUsername&q=ownerUsername=='+name).done(function(patient){
-							var il_id = patient['items'][0]['id'];
-							var il_name =  patient['items'][0]['ownerUsername'];
-							getQuestionnairePartInfoOfPatient('chromome6_i_L', il_name, il_id, geneId, tableDiv, sortCallback, geneTable);				
-						});
-					});
+		stop+';Stop_positie_in_Hg19=ge='+start+'&num=4000').done(function(patients_with_broken_gene){
+		var patients = patients_with_broken_gene['items'];
+		if(patients.length !== 0){
+			var patientsLength = patients.length;
+			lastPatient = patients[patientsLength-1]['ownerUsername'];
+			$.each(patients, function(i, patient){
+				var name = patient['ownerUsername'];
+				var mutation = patient['imbalance']['id'];
+				if(mutation === 'x0'|| mutation === 'x1'){
+					if($.inArray(name, patientsDeletion)===-1){
+						patientsDeletion.push(name);
+					};
+				}else if(mutation === 'x3' || mutation === 'x4'){
+					if($.inArray(name, patientsDuplication)===-1){
+						patientsDuplication.push(name);
+					};
+				};
+				if(geneId !== ''){
+					genePatients[geneId].push(name);
+					if($.inArray(name, Object.keys(patientGenes))===-1){
+						patientGenes[name] = [geneId];
+					}else{
+						patientGenes[name].push(geneId);
+					};
+				};
+				$.get('/api/v2/chromosome6_a_c?attrs=id,ownerUsername&q=ownerUsername=='+name).done(function(patient){
+					var ac_id = patient['items'][0]['id'];
+					var ac_name = patient['items'][0]['ownerUsername'];
+					getQuestionnairePartInfoOfPatient('chromosome6_a_c', ac_name, ac_id, geneId, tableDiv, sortCallback, geneTable);
 				});
-			};
-		});
-}
+				$.get('/api/v2/chromome6_d_h?attrs=id,ownerUsername&q=ownerUsername=='+name).done(function(patient){
+					var dh_id = patient['items'][0]['id'];
+					var dh_name =  patient['items'][0]['ownerUsername'];
+					getQuestionnairePartInfoOfPatient('chromome6_d_h', dh_name, dh_id, geneId, tableDiv, sortCallback, geneTable);
+				});
+				$.get('/api/v2/chromome6_i_L?attrs=id,ownerUsername&q=ownerUsername=='+name).done(function(patient){
+					var il_id = patient['items'][0]['id'];
+					var il_name =  patient['items'][0]['ownerUsername'];
+					getQuestionnairePartInfoOfPatient('chromome6_i_L', il_name, il_id, geneId, tableDiv, sortCallback, geneTable);				
+				});
+			});
+		};
+	});
+};
 function getQuestionnairePartInfoOfPatient(part, name, id, geneId, phenoTable, sortCallback, geneTable){
 	getChrAnswerData(id, part, processPatientsAnswer, function(){
 		if(lastGene === geneId && lastPatient === name){
@@ -128,7 +128,7 @@ function getQuestionnairePartInfoOfPatient(part, name, id, geneId, phenoTable, s
 			}
 		}
 	});
-}
+};
 function processPatientsAnswer(question, answer, notNeeded, name){
 	if(question !== 'gender'&&question!=='birthdate'&&typeof answer !== 'number'&&/\d{4}-\d{2}-\d{2}/.test(answer)===false){
 		if(question+':'+answer in phenotypes){
@@ -139,7 +139,7 @@ function processPatientsAnswer(question, answer, notNeeded, name){
 			phenotypes[question+':'+answer]=[name];
 		}
 	}
-}
+};
 function sortPhenotypes(callback){
 	//first make a list with object sorted on length of patient list
 	$.each(phenotypes, function(phenotype, patients){
@@ -160,7 +160,7 @@ function sortPhenoList(phenotypeList){
 		return molgenis.naturalSort(pheno2.numberOfPatients, pheno1.numberOfPatients);
 	});
 	return phenotypeList;
-}
+};
 function putPhenotypesInTable(tableDiv, phenoInfo){
 	$(tableDiv).html('<table id = "genePheno" class="table table-hover"></table>');
 	$('#genePheno').append('<tr><th>Phenotype</th><th># Patients</th><th>Patients</th></tr>');
@@ -168,10 +168,10 @@ function putPhenotypesInTable(tableDiv, phenoInfo){
 		$('#genePheno').append('<tr><td>'+phenotype['phenotype']+'</td><td>'+
 			phenotype['numberOfPatients']+'</td><td>'+phenotype['patients'].toString()+'</td></tr>');
 	});
-}
+};
 function putInDropdown(divOfDropdown, whatToPutIn, id){
 	$(divOfDropdown).append('<li><a href="#" class="selection phenoOption" id="'+id+'">'+whatToPutIn+'</li>');
-}
+};
 function selectDropDownOption(title, option){
 	//get text of clicked option
 	// for genes: get information that is asked for and put in table (using genePatients);
@@ -195,7 +195,7 @@ function selectDropDownOption(title, option){
 	}
 	$(title).text(txt);
 	putPhenotypesInTable('#genePhenoTable', phenotypes);
-}
+};
 function extractPatients(specList){
 	var newPhenoList = [];
 	$.each(phenoList, function(index, phenoObj){
@@ -216,7 +216,7 @@ function extractPatients(specList){
 	});
 	var phenotypesWithSpec= sortPhenoList(newPhenoList);
 	return phenotypesWithSpec;
-}
+};
 function putGenesPerPatientInTable(geneResultsTableDiv, selectedGenes){
 	$(geneResultsTableDiv).html('<table class="table table-hover"><thead><tr id="geneResultsHead"><th>Patient</th></tr></thead><tbody id="geneResultsBody"></tbody></table>');
 	$.each(selectedGenes, function(index, gene){
@@ -240,4 +240,4 @@ function putGenesPerPatientInTable(geneResultsTableDiv, selectedGenes){
 		row = row +'</tr>';
 		$('#geneResultsBody').append(row);
 	});
-}
+};

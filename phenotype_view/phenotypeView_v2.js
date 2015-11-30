@@ -471,6 +471,7 @@ function getSymptoms(selectedSymptoms){
 * Then the checkQuestionnaireData is called to process the selected symptoms. 
 */
 	var symptomList = [];
+	geneArray = [];
 	/* This object is resolved when the symptomList is filled completely and can be returned
 	* (when the length of the symptomList is the same as the length of the selected symptoms)
 	*/
@@ -701,17 +702,27 @@ function checkPatients(patient, symptoms, callback){
 	callback(matches);
 };
 function removeGenesFromTable(id){
+/**This function removes the unchecked genes from the checked patient array and adds checked patients to the array*/
 	var box = $('.check'+id);
 	var isChecked = box.is(':checked');
+	//here there is checked if the box is checked, but the information is not in the array that contains the checked patients
 	if(isChecked && $.inArray(id, checkedPatients)=== -1){
+		//checked patients should be in the checked patient array, so push
 		checkedPatients.push(id);
+	//patients are not checked, but in array?
 	}else if (!isChecked && $.inArray(id, checkedPatients)!== -1){
+		//get position of this patient in the array
 		var index = checkedPatients.indexOf(id);
+		//remove patient on that position
 		checkedPatients.splice(index, 1);
 	}
+	//this function is called to alter the gene table
 	editGenes();
 };
 function editGenes(){
+/**This function reads the array with genes and compares the found patients in the genes with the checkedGenes array
+Unchecked genes, the geneArray will be copied and unchecked patients will be removed from the copy. The copy is made
+because the original should be saved in case the user selects all patients again (faster) */
 	var newGeneArray = [];
 	$.each(geneArray, function(genePositionInArray, geneObj){
 		var patients = geneObj['patients'];
@@ -721,6 +732,7 @@ function editGenes(){
 			if($.inArray(patientWithGene, checkedPatients) !== -1){
 				newPatients.push(patientWithGene);		
 			}
+			//copy the values that are the same and update patients and count
 			newGeneObj.ensembl = geneObj.ensembl;
 			newGeneObj.morbid_acc = geneObj.morbid_acc;
 			newGeneObj.morbid_desc = geneObj.morbid_desc;
@@ -729,8 +741,10 @@ function editGenes(){
 			newGeneObj.stop = geneObj.stop;
 			newGeneObj.patients = newPatients;
 			newGeneObj.count= newPatients.length;	
+			//if last patient is reached, push the gene object to the new array
 			if(patients.length-1 === patientIndex){
 				newGeneArray.push(newGeneObj);
+				//if last gene is reached, sort the array
 				if( geneArray.length - 1 === genePositionInArray){
 					//sort the array on the nummer of genes counted in this selection (thanks to Chao Pang =) )
 					newGeneArray.sort(function(gene1, gene2){
@@ -743,7 +757,12 @@ function editGenes(){
 	});
 };
 function resetTable(){
+/** This function makes the gene table empty.*/
 	//Add the table structure to the page
     $("#info").html('<br/><br/><div class="table-responsive"><table class = "table table-hover" id="gene_table"><thead>'+
     			    '<th>Gene</th><th>Position</th><th>Number of patients</th><th>Literature</th><th></th></thead><tbody id="table_body"></tbody></table></div>');
 };
+function emptyChecked(){
+/** This function makes the checked patients empty (when search button is pressed)*/
+	checkedPatients = [];
+}

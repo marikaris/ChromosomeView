@@ -133,17 +133,20 @@
         $("#showRegion").css('display', 'none');
         $("#showPatient").css('display', 'inline');
     });
-    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/89efd5043d0b883dcb04d942f48d1b90b64e00a1/phenotypeViewer_v2.js', function(){
+    <#--This piece of code makes the phenotype view view-->
+    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/9ee66fe99192b1b600818f108e41c4cdc196d230/phenotypeViewer_v2.js', function(){
     	getPhenotypes('http://localhost:8080/api/v2/chromosome6_a_c');
    	 	getPhenotypes('http://localhost:8080/api/v2/chromome6_d_h');
     	getPhenotypes('http://localhost:8080/api/v2/chromome6_i_L');
     	$.get('/api/v2/gender', function(genderInfo){
     		genders = genderInfo['items'];
+    		<#--The select2 searchbar will be filled with genders-->
     		$.each(genders, function(index, gender){
     			addToSearch('gender: '+gender['label']);
     		});
    		 });
     	$('#search_button_phenotype').on('click', function(){
+    		emptyChecked();
     		var selected = $('#tagPicker_phenotype').select2('data');
     		getSymptoms(selected);	
     	});	
@@ -155,6 +158,7 @@
     $("#tagPicker_genes").select2({
         closeOnSelect:false
     });
+<#--make background of text in select menu blue on hover-->
     $('.selection').mouseenter(function(){
         $(this).addClass('active');
     });
@@ -182,7 +186,7 @@
         var selected = $('#tagPicker_genes').select2('data');
         $('#ge_result').css('display', 'inline');
         $('#gene_info').html('');
-        $.getScript('https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/9bf1755f2adb68d269b66c24718d3aa3843f7916/getGenes.js').done(
+        $.getScript('https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/50c3580de30cfcedf6d54b1351f53eb906dee66d/getGenes.js').done(
             	function(){	
             processSelectedGenes(selected);
             $('.selection').mouseenter(function(){
