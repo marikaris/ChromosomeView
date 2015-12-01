@@ -178,7 +178,6 @@
             $('#ge_result').html(geneFrame);
         });
     $('#search_button_genes').click(function(){
-    	//var phenoList = [];
     	$('#genePhenoTable-title').text('All patients');
     	$('#phenotype-optionList').html('<li><a href="#" id="phenoOption-allPatients" class="selection phenoOption">All patients</a></li>'+
     				'<li><a href="#" id="phenoOption-deletion" class="selection phenoOption">Patients with deletion</a></li>'+
@@ -206,6 +205,7 @@
     $.getScript('https://rawgit.com/marikaris/280e033da84cc3dfac82/raw/c2081c27034cf4d7af35be2c0f2b90d0810ee462/regionView.js').done(function(){
     	makeSelect('#chromosome_bar', '#posX-1', '#posX-2', '#draggable1', '#draggable2', '#bar');
    		$('#selectRegion').on('click', function(){
+   			$('#regionResults').html('');
    			getPatients($('#posX-1').val(), $('#posX-2').val());
    		});
     });
