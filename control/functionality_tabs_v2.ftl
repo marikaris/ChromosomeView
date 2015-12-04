@@ -110,6 +110,9 @@
         $(this).removeClass('active');
     });
     $('#phenotypeView').click(function(){
+    	//patient views chromosome bar should become empty because the bar in the patient view, may conflict with the phenotype view
+    	$("#patient_chromosome").html('');
+    	$('#patient_information').css('display', 'none');
         $("#showPheno").css('display', 'inline');
         $("#showGene").css('display', 'none');
         $("#showRegion").css('display', 'none');
