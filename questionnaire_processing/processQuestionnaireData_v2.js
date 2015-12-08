@@ -3,19 +3,28 @@ function getGenotype(href, chromosome_div){
 	$.get(href).done(function(array){
 		//Select start, stop, mutation type, mozaiek percentage and the benign property (could the mutation be benign)
 		//from the array
-		var start = array['Start_positie_in_Hg19'];
-		var stop = array['Stop_positie_in_Hg19'];
-		var mutation = array['imbalance']['label'];
-		var mozaiek = array['Mozaiek'];
-		var benign = array['Benign'];
-		//put the information in one string
-		genotype = start+'...'+stop+'<br/>mutation: '+mutation;
-		//if the mozaiek and benign property are not empty, put them in too
-		if(mozaiek!=undefined){genotype+='<br/>mozaiek: '+mozaiek}
-		if(benign!=undefined){genotype+='<br/>possibly benign: '+benign}
+		var geno2plot=[];
+		genotype = '';
+		var ownerUsername;
+		var arrayData = array['items'];
+		$.each(arrayData, function(nr, mutation){
+			ownerUsername = mutation['ownerUsername'];
+			var start = mutation['Start_positie_in_Hg19'];
+			var stop = mutation['Stop_positie_in_Hg19'];
+			var mutationType = mutation['imbalance']['id'];
+			var mozaiek = mutation['Mozaiek'];
+			var benign = mutation['Benign'];
+			geno2plot.push([start, stop, mutationType, benign]);
+			//put the information in one string
+			genotype += 'Location: '+start+'...'+stop+'<br/>Mutation: '+mutation['imbalance']['label'];
+			//if the mozaiek and benign property are not empty, put them in too
+			if(mozaiek!=undefined){genotype+='<br/>Mozaiek: '+mozaiek}
+			if(benign!=undefined){genotype+='<br/>Possibly benign: '+benign}
+			genotype+= '<br/><br/>'
+		});
 		//put the genotype in the table
 		putInTable('genotype', genotype,'#patient-table');
-		$.getScript('https://rawgit.com/marikaris/ad0597f3ef4223b3bbbb/raw/c46347bad8c01c938e583c72536ebf3974989f16/d3_chromosome_v2.js').done(function(){
+		$.getScript('https://rawgit.com/marikaris/38ff780bc7de041581d9/raw/de400ca52b3d85e68aa04f7b2e3cdf3014ec0d2d/chromoChart_v3.js').done(function(){
 			//Call the function that makes the x axis (the 6th chromosome) from the library
 			var chr6size= 170805979;
 			$(chromosome_div).html('<div id="legend"></div><div id="chart"></div>');
@@ -27,12 +36,10 @@ function getGenotype(href, chromosome_div){
 		    	chromoChart.addLegend({"div":"#legend"});
 		    	//Make bar for the patient
 			chromoChart.makeBar({
-	    			"start"			:start,
-	    			"stop"			:stop,
-				"mutation_type"		:mutation,
+	    		"mutations"			:geno2plot,
 				"chr_length"		:chr6size,
 				"chart_div"		:'#chart',
-				"patient_id"		:array['ownerUsername'], 
+				"patient_id"		:ownerUsername, 
 				"figureWidth"		:$(window).width()*0.5
 	    		});
 		});

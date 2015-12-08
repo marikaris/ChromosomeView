@@ -137,7 +137,7 @@
         $("#showPatient").css('display', 'inline');
     });
     <#--This piece of code makes the phenotype view view-->
-    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/9ee66fe99192b1b600818f108e41c4cdc196d230/phenotypeViewer_v2.js', function(){
+    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/f5c5397fb1b397c85d8441e271ebf9b46152b988/phenotypeViewer_v2.js', function(){
     	getPhenotypes('http://localhost:8080/api/v2/chromosome6_a_c');
    	 	getPhenotypes('http://localhost:8080/api/v2/chromome6_d_h');
     	getPhenotypes('http://localhost:8080/api/v2/chromome6_i_L');
@@ -260,33 +260,26 @@
 								patient_id_i_l = patient_il['id'];
 							}
 						});
-						<#---Get the id of the array data-->
-						$.get('/api/v2/chromosome6_array').done(function(arrayData){
-							var patient_array = arrayData['items'];
-							$.each(patient_array, function(index, patient_array_info){
-								if(patient_array_info['ownerUsername']===ownerUsername){
-									$.getScript('https://rawgit.com/marikaris/845fe9c278035feb64df'+
-									'/raw/4666a221c6b40ec3043e5d5f9d46b5cccd046821/processQuestionnaireData_v2.js').done(function(){
-										<#---Get the info and put it in the table-->
-										getGenotype(patient_array_info['_href'], '#patient_chromosome');
-										getChrAnswerData(patient_id_a_c, 'chromosome6_a_c', putInTable);
-										getChrAnswerData(patient_id_d_h, 'chromome6_d_h', putInTable);
-										getChrAnswerData(patient_id_i_l, 'chromome6_i_L', putInTable);
-										<#--Search through table, code from: http://stackoverflow.com/questions/31467657/how-can-i-search-in-a-html-table-without-using-any-mysql-queries-just-a-plain-j-->
-										$("#search_through_table").keyup(function(){
-       						 				_this = this;
-        									<#-- Show only matching TR, hide rest of them-->
-        									$.each($("#patient-table tbody").find("tr"), function() {
-            									if($(this).text().toLowerCase().indexOf($(_this).val().toLowerCase()) == -1){
-               										$(this).hide();
-            									}else{
-          							       			$(this).show();
-          							  			}                
-       										});
-    									}); 
-									});
-								}
-							});
+						var url = '/api/v2/chromosome6_array?q=ownerUsername==';
+						$.getScript('https://rawgit.com/marikaris/845fe9c278035feb64df'+
+									'/raw/79fcb8131b2aad6245e6874628209cbac48366b3/processQuestionnaireData_v2.js').done(function(){
+							<#---Get the info and put it in the table-->
+							getGenotype(url+ownerUsername, '#patient_chromosome');
+							getChrAnswerData(patient_id_a_c, 'chromosome6_a_c', putInTable);
+							getChrAnswerData(patient_id_d_h, 'chromome6_d_h', putInTable);
+							getChrAnswerData(patient_id_i_l, 'chromome6_i_L', putInTable);
+							<#--Search through table, code from: http://stackoverflow.com/questions/31467657/how-can-i-search-in-a-html-table-without-using-any-mysql-queries-just-a-plain-j-->
+							$("#search_through_table").keyup(function(){
+       						 	_this = this;
+        						<#-- Show only matching TR, hide rest of them-->
+        						$.each($("#patient-table tbody").find("tr"), function() {
+            						if($(this).text().toLowerCase().indexOf($(_this).val().toLowerCase()) == -1){
+               							$(this).hide();
+            						}else{
+						       			$(this).show();
+          							}                
+       							});
+    						}); 
 						});
 					});
 				});

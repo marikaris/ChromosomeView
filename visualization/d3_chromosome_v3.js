@@ -25,20 +25,15 @@ var chromoChart = function () {
     		figureWidth = typeof figureWidth !== 'undefined' ? figureWidth : 500;
 			//The div that contains the chart. This div is located in the figure div that
 			//contains the title of the image
-	 		var svgContainer = d3.select(div).append("svg")
-	                                      .attr("width", figureWidth)
+	 		var svgContainer = d3.select(div).append("svg").attr("width", figureWidth)
 	                                     .attr("height", 30);
 	 		//Tell what properties the axis should have
-	 		var axisScale = d3.scale.linear()
-	                       .domain([0.001, chr_length])
-	                       .range([0, figureWidth]);
+	 		var axisScale = d3.scale.linear().domain([0.001, chr_length]).range([0, figureWidth]);
 			//Create the x axis attributer
-			var xAxis = d3.svg.axis()
-	                .scale(axisScale).ticks(10, ",.1s").tickSize(6, 5);
+			var xAxis = d3.svg.axis().scale(axisScale).ticks(10, ",.1s").tickSize(6, 5);
 	        //Publish the x axis     
-	        var xAxisGroup = svgContainer.append("g")
-	                              .call(xAxis);
-    	}
+	        var xAxisGroup = svgContainer.append("g").call(xAxis);
+    	};
     	/**FUNCTION: makeBar creates the bar with patient information in the visualisation of a chromosome. 
     	 *REQUIRED ARGUMENTS: 
     	 *"start" 		- start position of the mutation 
@@ -58,6 +53,9 @@ var chromoChart = function () {
     	 *"figureWidth"		- The width of the bar (default 500)
     	 *"hemi_del_color"	- The color of the bar in a hemizygous deletion.
     	 *"triplication_color" - The color of the bar in a triplication.
+    	 *"mutations" - This function contains the mutations of the patient in this format:
+    	 * 				[startposition, stopposition, mutationtype, benign]. If this variable 
+    	 				is used, mutation, start and stop can be left out. 
     	 *EXAMPLE USAGE:
     	 *chromoChart.makeBar({
     	 *"start"			:483938,
@@ -69,7 +67,6 @@ var chromoChart = function () {
     	 */
     	function makeBar(args){
 	    	//Setting the variables from the given arguments.
-	    	var startstops = args["start_stops"];
 	    	var mutations = args["mutations"];
 	    	var start = args["start"];
 	    	var stop = args["stop"];
@@ -84,6 +81,7 @@ var chromoChart = function () {
 	    	var tripCol = args['triplication_color'];
 	    	var barCol = args["bar_color"];
 	    	var figureWidth = args["figureWidth"];
+	    	var benign = args["benign"];
 	    	//Setting the defaults.
 	    	hemiDelCol = typeof delCol !== 'undefined' ? delCol : "orange";
 	    	delCol = typeof delCol !== 'undefined' ? delCol : "#FF6600";
@@ -91,27 +89,21 @@ var chromoChart = function () {
 			figureWidth = typeof figureWidth !== 'undefined' ? figureWidth : 500;
 			dupCol = typeof dupCol !== 'undefined' ? dupCol : "steelblue";	
 			tripCol = typeof tripCol !== 'undefined' ? tripCol : "#000066";		
-			startstops = typeof startstops !== 'undefined' ? startstops : [[start, stop]];	
-			mutations = typeof mutations !== 'undefined' ? mutations : [mut_type];
 			//If the height of the bar is not set, set to 20px.
-			barHeight = typeof barHeight !== 'undefined' ? barHeight : 20;			
+			barHeight = typeof barHeight !== 'undefined' ? barHeight : 20;		
+			benign = typeof benign !== 'undefined' ? benign : false;		
+			mutations = typeof mutations !== 'undefined' ? mutations : [[start, stop, mut_type, benign]];	
 			//Set range of width
-			var x = d3.scale.linear()
-					.range([0, figureWidth]);
+			var x = d3.scale.linear().range([0, figureWidth]);
 			$(chart_div).append('<div class="'+patient_id+
 				'" style="display:none"></div><svg class="chart" id="'+
 				patient_id+'"></svg>');
 		//Create the chart in which the bar will come.
-		var chart = d3.select("#"+patient_id)
-				.attr("width", figureWidth);  
+		var chart = d3.select("#"+patient_id).attr("width", figureWidth);  
 		//Fill the chart with information
 		chart.attr("height", barHeight);
 		//Calculate how much pixels a base pair is.
 		var bp=figureWidth/chr_size;
-		//Save variables.
-		var size = stop - start;
-		var id = patient_id;
-		var mutation = mut_type;			
 		var data = [{"start":start, "stop":stop}];	
 		//Create a bar	
 		var bar = chart.selectAll("g")
@@ -123,73 +115,19 @@ var chromoChart = function () {
 		bar.append("rect")
 		     .attr("width", figureWidth)
 		     .attr("height", barHeight - 1)
-		     .attr("id", "total"+id)
-		//Put a bar over the previous bar that is colored and goes from start of 
-		//the chromosome until the stop position of the mutation.  
-		bar.append("rect")
-			.attr("width", bp*stop)
-			.attr("height", barHeight - 1)
-			.attr("id", "stop"+id)
-		//Put a bar over the previous bar that goes from the start of the chromosome 
-		//to the start position.	
-		bar.append("rect")
-			.attr("width", bp*start)
-			.attr("height", barHeight - 1)
-			.attr("id", "start"+id)
-		//Position and color the first bar. 		
-		$("#start"+id).css("width", bp*start);
-		$("#start"+id).css("fill", barCol);	
-		$("#stop"+id).css("width", bp*stop);
-		//Position and color the second bar. 	
-		$("#total"+id).css("width", figureWidth);
-		$("#total"+id).css("fill", barCol);
-		//Names of divs with text about start and stop. 
-		var start_id = "start_pos"+id;
-		var stop_id = "stop_pos"+id;
-		//Div for text that shows start position. 
-		var start_position = $( "<div id="+start_id+"/>" );
-		$("."+id).append(start_position);
-		//Position and color the Third bar. 
-		$("#start_pos"+id).css("margin-left",start*bp-40);
-		$("#start_pos"+id).css("margin-right",0);
-		//text that shows start position. 
-		$("#start_pos"+id).text(start);
-		//text that shows start position.
-		var stop_position = $( "<div id="+stop_id+"/>" );
-		//Div for text that shows start position. 
-		$("."+id).append(stop_position);
-		//Positioning the text.
-		$("#stop_pos"+id).css("margin-left",stop*bp);
-		$("#start_pos"+id).css("margin-bottom","-1.2em");
-		$("."+id).css("margin-top","1em");
-		$("#"+id).css("margin-top","1em");
-		//Color the bars based on deletion or duplication and present what it is.
-		if(mutation === 'homozygote deletie'||mutation === 'homozygous deletion'){
-			$('#stop_pos'+id).html(stop);
-			$('#stop'+id).css('fill', delCol);
-		}else if(mutation === 'hemizygote deletie'||mutation ==='hemizygous deletion'){
-			$('#stop_pos'+id).html(stop);
-			$('#stop'+id).css('fill', hemiDelCol);
-			
-		}else if (mutation === 'duplicatie'||mutation === 'duplication'){
-			$('#stop_pos'+id).html(stop);
-			$('#stop'+id).css('fill', dupCol);
-		}else if (mutation === 'triplicatie'||mutation === 'triplication'){
-			$('#stop_pos'+id).html(stop);
-			$('#stop'+id).css('fill', tripCol);
-		}else{
-			$('#stop_pos'+id).html(stop);
-			$('#stop'+id).css('fill', '#6B24B2');}
-		//Make the positioning different when the difference between the start and 
-		//stop position is too little to show on one line.
-		if(parseInt(size) <= 3000000){
-			$("#stop_pos"+id).css("margin-top", "4em");
-			$("#stop_pos"+id).css("margin-bottom", "-4em");
-			$("#start_pos"+id).css("margin-top", "4em");
-			$("#start_pos"+id).css("margin-bottom","-1em");
-		}
-		//Toggle the display of the positions and mutation on the chromosome.
-		$("#"+id).click(function(){$("."+id).toggle()});
+		     .attr("id", "total"+patient_id);
+		//put each mutation in the bar of the patient
+		$.each(mutations, function(mutationNr, mutation){
+			var mutationStart = mutation[0];
+			var mutationStop = mutation[1];
+			var mutationType = mutation[2];
+			var mutationBenign = mutation[3];
+			addMutationsToBar(mutationType, mutationStart, mutationStop, delCol, dupCol, tripCol,  
+								hemiDelCol, barCol, bp, barHeight, bar, patient_id, figureWidth, 
+								mutationNr);
+		});
+		//toggle the start and stop location
+		$("#"+patient_id).click(function(){$("."+patient_id).toggle()});
 	}
 	/**FUNCTION: addLegend adds the legend to the chart.
 	 *REQUIRED ARGUMENTS: 
@@ -577,6 +515,58 @@ var chromoChart = function () {
 			"tox_table":tox_table
 		});
 	}
+	function addMutationsToBar(mutation, start, stop, delCol, dupCol, tripCol,  
+								hemiDelCol, barCol, bp, barHeight, bar, id, figureWidth, 
+								mutationNr){
+		/**This function has as purpose to add mutations to a bar, because a patient can 
+		have more than one mutation on the same chromosome. It cannot be called by a user, 
+		but is used by the function makeBar. */
+		//Save variables.
+		var size = stop - start;	
+		//Put a bar over the previous bar that is colored and defines the mutation
+		bar.append("rect").attr("width", bp*size).attr("height", barHeight - 1)
+			.attr("x", bp*start).attr("id", id+mutationNr);
+		//Position and color the first bar. 		
+		$('#'+id+mutationNr).css("width", bp*size);
+		//Names of divs with text about start and stop. 
+		var start_id = 'start_pos'+id+mutationNr;
+		var stop_id = 'stop_pos'+id+mutationNr;
+		//Div for text that shows start position. 
+		var start_position = $( '<div id="'+start_id+'"/>' );
+		$("."+id).append(start_position);
+		$("#start_pos"+id+mutationNr).css("margin-left",start*bp-25);
+		$("#start_pos"+id+mutationNr).css("margin-right",0);
+		//text that shows start position. 
+		$("#start_pos"+id+mutationNr).text(start);
+		//text that shows start position.
+		var stop_position = $( '<div id="'+stop_id+'"/>' );
+		//Div for text that shows start position. 
+		$("."+id).append(stop_position);
+		//Positioning the text.
+		$("#stop_pos"+id+mutationNr).css("margin-left",stop*bp+15);
+		$("#start_pos"+id+mutationNr).css("margin-bottom","-1.2em");
+		
+		//Color the bars based on deletion or duplication and present what it is.
+		if(mutation === 'homozygote deletie'||mutation === 'homozygous deletion'||mutation === 'x0'){
+			$('#stop_pos'+id+mutationNr).html(stop);
+			$('#'+id+mutationNr).css('fill', delCol);
+		}else if(mutation === 'hemizygote deletie'||mutation ==='hemizygous deletion'||mutation === 'x1'){
+			$('#stop_pos'+id+mutationNr).html(stop);
+			$('#'+id+mutationNr).css('fill', hemiDelCol);
+		}else if (mutation === 'duplicatie'||mutation === 'duplication'||mutation === 'x3'){
+			$('#stop_pos'+id+mutationNr).html(stop);
+			$('#'+id+mutationNr).css('fill', dupCol);
+		}else if (mutation === 'triplicatie'||mutation === 'triplication'||mutation === 'x4'){
+			$('#stop_pos'+id+mutationNr).html(stop);
+			$('#'+id+mutationNr).css('fill', tripCol);
+		}else{
+			$('#stop_pos'+id+mutationNr).html(stop);
+			$('#'+id+mutationNr).css('fill', 'grey');
+		};
+		$("."+id).css("margin-top","1em");
+		$("#"+id).css("margin-top","1em");
+		$('#total'+id).css('fill', barCol);
+	};
 	//The public functions are here specified. 
 	return {
 		makeChromosome:makeChromosome, 

@@ -54,29 +54,38 @@ function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 		putGenesInTable(genes, '#table_body');
 	});
 	//put the genomic information of each patient in the deletion and duplication array 
-	$.each(patients, function(index, patient){
+	$.each(patients, function(patient_index, patient){
 		id = patient['patient_id'];
 		if($.inArray(id, checkedPatients)=== -1){
 			checkedPatients.push(id);
 		}
-		var start = patient['start'];
-		var stop = patient['stop'];
-		var mutation = patient['mutation'];
-		//Because deletions and duplications most of the time show completely different phenotypes, they should be shown seperately
-		if(mutation === 'hemizygote deletie'||mutation ==='hemizygous deletion'|mutation === 'homozygote deletie'||mutation === 'homozygous deletion'){
-			deletion.push({'id': id, 'start':start, 'stop':stop, 'mutation':mutation});
-		}else{
-			duplication.push({'id': id, 'start':start, 'stop':stop, 'mutation':mutation});
-		}
-		/**If the number of deletions and duplications is equal to the length of the patient array, 
-		* all patients have been appended to an array
-		*/
-		if(duplication.length+deletion.length === patients.length){
-			patientCheck.resolve();
-		}
+		var starts = patient['start'];
+		var stops = patient['stop'];
+		var mutations = patient['mutation'];
+		var aberrations = getPatientAberrations(starts, stops, mutations);
+		var patientObj = {'id': id, 'mutations':aberrations};
+		$.each(mutations, function(mutation_index, mutation){
+			//Because deletions and duplications most of the time show completely different phenotypes, they should be shown seperately
+			if(mutation === 'hemizygote deletie'||mutation ==='hemizygous deletion'||
+				mutation === 'homozygote deletie'||mutation === 'homozygous deletion'|| 
+				mutation === 'x0'||mutation ==='x1'){
+				if($.inArray(patientObj, deletion) === -1){
+					deletion.push(patientObj);
+				};
+			}else{
+				if($.inArray(patientObj, duplication) === -1){
+					duplication.push(patientObj);
+				};
+			};
+			/**If all patients and mutations in the patients have been processed, resolve the patientCheck
+			*/
+			if(patients.length-1 === patient_index && mutations.length-1 === mutation_index){
+				patientCheck.resolve();
+			};
+		});
 	});
 	//Get the library	
-	$.getScript('https://rawgit.com/marikaris/ad0597f3ef4223b3bbbb/raw/c46347bad8c01c938e583c72536ebf3974989f16/d3_chromosome_v2.js', function()
+	$.getScript('https://rawgit.com/marikaris/38ff780bc7de041581d9/raw/de400ca52b3d85e68aa04f7b2e3cdf3014ec0d2d/chromoChart_v3.js', function()
 	{	//The width of the bars in this view should be 75% of the screen width. 
 		width = $(window).width()*0.5;
 		//Call the function that makes the x axis (the 6th chromosome) from the library
@@ -90,18 +99,16 @@ function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 	   		$('#loading').css('display', 'none');
 	   		//Sort the deletion patients on start position
 			deletion.sort(function(patient1, patient2){
-				return molgenis.naturalSort(patient1.start, patient2.start);
+				return molgenis.naturalSort(patient1.mutations[0][0], patient2.mutations[0][0]);
 			});
 			//Sort the duplication patients on start position
 			duplication.sort(function(patient1, patient2){
-				return molgenis.naturalSort(patient1.start, patient2.start);
+				return molgenis.naturalSort(patient1.mutations[0][0], patient2.mutations[0][0]);
 			});
 			//Make a bar for each patient with a deletion
 			$.each(deletion, function(i, patient){
 				chromoChart.makeBar({
-					'start':patient['start'],
-					'stop':patient['stop'],
-					'mutation_type':patient['mutation'],
+					'mutations':patient['mutations'],
 					'chr_length': chr6size,
 					'chart_div':'#deletion',
 					'patient_id':patient['id'],
@@ -116,9 +123,7 @@ function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 			//Make a bar for each patient with a duplication
 			$.each(duplication, function(i, patient){
 				chromoChart.makeBar({
-					'start':patient['start'],
-					'stop':patient['stop'],
-					'mutation_type':patient['mutation'],
+					'mutations':patient['mutations'],
 					'chr_length':170805979,
 					'chart_div':'#duplication',
 					'patient_id':patient['id'],
@@ -265,43 +270,46 @@ function getGenesOfPatients(patients, callbackFunction){
 	var lastGeneOfLastPatient = $.Deferred();
 	//This array is filled later with all the gene objects and then sorted on the count variable in the objects
 	$.each(patients, function(patient_iteration, patient){
-		var start = patient['start'];
-		var stop = patient['stop'];
+		var starts = patient['start'];
+		var stops = patient['stop'];
 		//call the api for this region
-		$.get('/api/v2/genes?attrs=~id,gene_name,ensembl_id,omim_morbid_accesion,omim_morbid_description,start,stop&q=start=le='+
-			stop+';stop=ge='+start+'&num=4000').done(function(geneData){
-			var genes = geneData['items'];
-			$.each(genes, function(gene_index, gene){
-				//if the gene is in the array, it should be counted 
-				if($.inArray(gene['ensembl_id'], Object.keys(genesInRegion)) > -1){
-					genesInRegion[gene['ensembl_id']]['count']+= 1;
-					genesInRegion[gene['ensembl_id']]['patients'].push(patient['patient_id']);
-				}else{
-				//if the gene is not in the array it should be added to the array with count 1
-					genesInRegion[gene['ensembl_id']] = {};
-					genesInRegion[gene['ensembl_id']]['name'] = gene['gene_name'];
-					genesInRegion[gene['ensembl_id']]['count'] = 1;
-					genesInRegion[gene['ensembl_id']]['ensembl'] = gene['ensembl_id'];
-					genesInRegion[gene['ensembl_id']]['morbid_acc'] = gene['omim_morbid_accesion'];
-					genesInRegion[gene['ensembl_id']]['morbid_desc'] = gene['omim_morbid_description'];
-					genesInRegion[gene['ensembl_id']]['start'] = gene['start'];
-					genesInRegion[gene['ensembl_id']]['stop'] = gene['stop'];
-					genesInRegion[gene['ensembl_id']]['patients'] = [patient['patient_id']];
-				}
-				/*
-				* This statement checks: 
-				* - if the current start is equal to the start position of the last patient
-				* - if the current stop is equal to the stop position of the last patient
-				* 
-				* When these two checks equal TRUE, we know the genes of last patient are being processed.
-				* The second part checks if the last gene is being handled by checking if the (gene list length) -1 is equal to the current index of the $.each loop
-				* 
-				* If these checks are true, the last gene of the last patient is reached and the deferred object can resolve, which later 
-				* triggers the function to continue
-				*/
-				if(patients[patients.length-1]['start']===start && patients[patients.length-1]['stop']===stop && genes.length-1 === gene_index){
-					lastGeneOfLastPatient.resolve();
-				}
+		$.each(starts, function(index, start){ 
+			stop = stops[index];
+			$.get('/api/v2/genes?attrs=~id,gene_name,ensembl_id,omim_morbid_accesion,omim_morbid_description,start,stop&q=start=le='+
+				stop+';stop=ge='+start+'&num=4000').done(function(geneData){
+				var genes = geneData['items'];
+				$.each(genes, function(gene_index, gene){
+					//if the gene is in the array, it should be counted 
+					if($.inArray(gene['ensembl_id'], Object.keys(genesInRegion)) > -1){
+						genesInRegion[gene['ensembl_id']]['count']+= 1;
+						genesInRegion[gene['ensembl_id']]['patients'].push(patient['patient_id']);
+					}else{
+					//if the gene is not in the array it should be added to the array with count 1
+						genesInRegion[gene['ensembl_id']] = {};
+						genesInRegion[gene['ensembl_id']]['name'] = gene['gene_name'];
+						genesInRegion[gene['ensembl_id']]['count'] = 1;
+						genesInRegion[gene['ensembl_id']]['ensembl'] = gene['ensembl_id'];
+						genesInRegion[gene['ensembl_id']]['morbid_acc'] = gene['omim_morbid_accesion'];
+						genesInRegion[gene['ensembl_id']]['morbid_desc'] = gene['omim_morbid_description'];
+						genesInRegion[gene['ensembl_id']]['start'] = gene['start'];
+						genesInRegion[gene['ensembl_id']]['stop'] = gene['stop'];
+						genesInRegion[gene['ensembl_id']]['patients'] = [patient['patient_id']];
+					}
+					/*
+					* This statement checks: 
+					* - if the current start is equal to the start position of the last patient
+					* - if the current stop is equal to the stop position of the last patient
+					* 
+					* When these two checks equal TRUE, we know the genes of last patient are being processed.
+					* The second part checks if the last gene is being handled by checking if the (gene list length) -1 is equal to the current index of the $.each loop
+					* 
+					* If these checks are true, the last gene of the last patient is reached and the deferred object can resolve, which later 
+					* triggers the function to continue
+					*/
+					if(patients[patients.length-1]['start']===starts && patients[patients.length-1]['stop']===stops && genes.length-1 === gene_index){
+						lastGeneOfLastPatient.resolve();
+					};
+				});
 			});
 		});
 	});
@@ -591,6 +599,7 @@ function checkQuestionnaireData(symptomList, cutOffClass, inputDiv, callbackFunc
 				ac_def.done(function(){
 					dh_def.done(function(){
 						patientData = [];
+						patientPositions = {};
 						//get the arraydata
 						$.get('/api/v2/chromosome6_array').done(function(arrayData){
 							//get the patients
@@ -599,13 +608,22 @@ function checkQuestionnaireData(symptomList, cutOffClass, inputDiv, callbackFunc
 								name = patient['ownerUsername'];
 								//check for each patient if he or she has enough matches with the selected symptoms
 								if(matchCount[name] >= cutOff){
-									//if so, add the patients array information to the patientData
-									patientObj = {};
-									patientObj['patient_id'] = name;
-									patientObj['start'] = patient["Start_positie_in_Hg19"];
-									patientObj['stop'] = patient["Stop_positie_in_Hg19"];
-									patientObj['mutation'] = patient['imbalance']['label'];
-									patientData.push(patientObj);
+									if(name in patientPositions){
+										//if the patient has more than one mutation on the chromosome
+										var position = patientPositions[name];
+										patientData[position].start.push(patient['Start_positie_in_Hg19']);
+										patientData[position].stop.push(patient['Stop_positie_in_Hg19']);
+										patientData[position].mutation.push(patient['imbalance']['id']);
+									}else{
+										//add the patients array information to the patientData
+										patientObj = {};
+										patientObj['patient_id'] = name;
+										patientObj['start'] = [patient['Start_positie_in_Hg19']];
+										patientObj['stop'] = [patient['Stop_positie_in_Hg19']];
+										patientObj['mutation'] = [patient['imbalance']['id']];
+										patientData.push(patientObj);
+										patientPositions[name]=patientData.indexOf(patientObj);
+									}
 								};
 							});
 							callbackFunction(symptomList, patientData, "#ph_result");
@@ -765,4 +783,18 @@ function resetTable(){
 function emptyChecked(){
 /** This function makes the checked patients empty (when search button is pressed)*/
 	checkedPatients = [];
+};
+function getPatientAberrations(startList, stopList, mutations){
+/** This function gets the aberrations of patients out of three lists and groups them */
+	var max = startList.length-1;
+	var i = 0;
+	var aberrations = [[startList[0], stopList[0], mutations[0]]];
+	while(i !== max){
+		i ++;
+		aberrations.push([startList[i], stopList[i], mutations[i]]);
+	}
+	aberrations.sort(function(aberration1, aberration2){
+		return molgenis.naturalSort(aberration1[0], aberration2[0]);
+	});	
+	return aberrations;
 }
