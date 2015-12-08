@@ -373,6 +373,8 @@ function addPatients(selectedPhenotype, patients, resultDiv){
 		resetTable();
     	//When the button that has the id 'be_gone' is clicked, when the checkbox of a bar is unchecked, the bar, and its id and checkbox will be hidden on the page
     	$("#be_gone").click(function(){
+    		//disable selectall
+    		$("#select_all").prop('disabled', true);
     		//hide the unchecked checkboxes
 		    var unchecked = $("input:checkbox:not(:checked)");
 			$.each(unchecked, function(){
@@ -385,6 +387,8 @@ function addPatients(selectedPhenotype, patients, resultDiv){
     	});
     	//Get all the checkboxes with ids back
 		$("#come_back").click(function(){
+			//enable select all
+			$("#select_all").prop('disabled', false);
 			$('.checkbox').css('display', 'inline');
 			$('.check_span').css('display', 'inline');
     	});
