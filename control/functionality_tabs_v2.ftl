@@ -45,7 +45,7 @@
       					</div>
     				</div>
  	 			</form>
-            	<table id="patient-table" class="table table-hover"><tbody></tbody></table>
+            	<div id="patient_table_div"></div>
             </div>
     	</div>
         <div id="showPheno" style="display:none">
@@ -153,6 +153,14 @@
     		var selected = $('#tagPicker_phenotype').select2('data');
     		getSymptoms(selected);	
     	});	
+    });
+    $('#selectMethod').click(function(){
+    	console.log('click');
+    	$('#patient-report-data').html('<div id="patient_report_chromosome"></div>'+
+										'<br/>'+
+										'<input id = "search_through_report_table" type="text" class="form-control" placeholder="Search through phenotype" name="srch-term" id="srch-term">'+
+										'<br/>');
+		$('#patient-table').remove();
     });	
 </script>
 <script>
@@ -216,6 +224,7 @@
 <script>
 <#---This part makes the patient view available-->
 	$('#patientView').click(function(){
+	$('#patient_table_div').html('<table id="patient-table" class="table table-hover"><tbody></tbody></table>');
 	<#---Make the patients selectable-->
 		$('#tagPicker_patient').select2();
 		$.get('/api/v2/chromosome6_a_c').done(function(info){
