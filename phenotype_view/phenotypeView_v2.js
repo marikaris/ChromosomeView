@@ -332,10 +332,19 @@ function putGenesInTable(genes, table_body_id){
 */
 	$.each(genes, function(i, gene){
 		if(gene.count !== 0){
-			$(table_body_id).append('<tr><td id="'+gene.ensembl+'">'+gene.ensembl+': '+gene.name+
-									'</td><td>'+gene.start+'...'+gene.stop+
+			$(table_body_id).append('<tr><td id="'+gene.ensembl+'"><a href = '+
+									'"http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g='+
+									gene.ensembl+'" target="_blank">'+gene.ensembl+': '+gene.name+
+									'</a></td><td>'+gene.start+'...'+gene.stop+
 									'</td><td>'+gene.count+'</td><td id="'+
-									gene.morbid_acc+'">'+gene.morbid_desc+'</td></tr>');
+									gene.ensembl+'_literature"></td></tr>');
+			var acc = JSON.parse(gene.morbid_acc.replace(/'/g, '"'));
+			var desc = JSON.parse(gene.morbid_desc.replace(/'/g, '"'));
+			$.each(acc, function(acc_index, acc){
+				$('#'+gene.ensembl+'_literature').append('<a href="http://www.omim.org/entry/'+
+						acc+'" target="_blank">'+desc[acc_index].charAt(0).toUpperCase() + 
+						desc[acc_index].slice(1).toLowerCase()+'</a><br/><br/>');
+			});	
 		};
 	});
 };
