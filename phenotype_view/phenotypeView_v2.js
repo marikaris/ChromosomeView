@@ -369,6 +369,10 @@ function addPatients(selectedPhenotype, patients, resultDiv){
 											'<div class="col-md-12" id = "figure">'+
 											'</div>'+
 										'</div>'+
+										'<div class="row">'+
+											'<div class="col-md-12" id = "patient_information">'+
+											'</div>'+
+										'</div>'+
 										'<div class="row" id="row">'+
 											'<div class="col-md-12" id="info">'+
 											'</div>'+
@@ -810,4 +814,14 @@ function getPatientAberrations(startList, stopList, mutations){
 		return molgenis.naturalSort(aberration1[0], aberration2[0]);
 	});	
 	return aberrations;
-}
+};
+function getPatientsWholePhenotype(patient){
+	tableDiv= '#patient-table-'+patient;
+	if($('#patient-table-'+patient)[0] === undefined){
+		$('#patient_information').append('<div id="dialog" title="'+patient+'">'+
+  										'<table class = "table table-hover" id="patient-table-'+patient+'">'+
+  										'<tbody></tbody></table>'+
+										'</div>');
+	};
+	
+};

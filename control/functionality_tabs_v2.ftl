@@ -155,12 +155,7 @@
     	});	
     });
     $('#selectMethod').click(function(){
-    	console.log('click');
-    	$('#patient-report-data').html('<div id="patient_report_chromosome"></div>'+
-										'<br/>'+
-										'<input id = "search_through_report_table" type="text" class="form-control" placeholder="Search through phenotype" name="srch-term" id="srch-term">'+
-										'<br/>');
-		$('#patient-table').remove();
+    	$('#patient-report-data').html('');
     });	
 </script>
 <script>
@@ -196,7 +191,7 @@
         var selected = $('#tagPicker_genes').select2('data');
         $('#ge_result').css('display', 'inline');
         $('#gene_info').html('');
-        $.getScript('https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/63283c637f72caa5357acb5bd7897fd162977d41/getGenes.js').done(
+        $.getScript('https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/a7ee65b47370be8b4fa162a480e3e699d475fe4b/getGenes.js').done(
             	function(){	
             processSelectedGenes(selected);
             $('.selection').mouseenter(function(){
@@ -271,7 +266,9 @@
 						});
 						var url = '/api/v2/chromosome6_array?q=ownerUsername==';
 						$.getScript('https://rawgit.com/marikaris/845fe9c278035feb64df'+
-									'/raw/79fcb8131b2aad6245e6874628209cbac48366b3/processQuestionnaireData_v2.js').done(function(){
+									'/raw/259acae3a202313c83fddf1461e90f009bfb82e1/processQuestionnaireData_v2.js').done(function(){
+							setNewTableDiv('#patient-table');
+							$('#patient_report_chromosome').html('');
 							<#---Get the info and put it in the table-->
 							getGenotype(url+ownerUsername, '#patient_chromosome');
 							getChrAnswerData(patient_id_a_c, 'chromosome6_a_c', putInTable);

@@ -10,6 +10,7 @@
 	<br/>
 	<div id = "patient-report-data">
 	</div>
+	<button id="downloadFeatures" type="button" class="btn btn-info">Download patients features</button>
 </div>
 
 <#-- modal footer -->
@@ -36,8 +37,8 @@ $.get(getAC).done(function(info){
 									'<input id = "search_through_report_table" type="text"'+
 									' class="form-control" placeholder="Search through phenotype" name="srch-term" id="srcs-term">'+
 									'<br/>'+
-									'<table class="table table-hover" id="patient-table"></table>');
-	$('#patient-table').html('<tbody></tbody>');
+									'<table class="table table-hover" id="patient-table-entityReport"></table>');
+	$('#patient-table-entityReport').html('<tbody></tbody>');
 	var patient_id_a_c = info['items'][0]['id'];
 	<#---Get the data of the second part of the questionnaire-->
 	$.get(getDH).done(function(dhInfo){
@@ -49,7 +50,8 @@ $.get(getAC).done(function(info){
 	});
 	var url = '/api/v2/chromosome6_array?q=ownerUsername==';
 	$.getScript('https://rawgit.com/marikaris/845fe9c278035feb64df'+
-					'/raw/79fcb8131b2aad6245e6874628209cbac48366b3/processQuestionnaireData_v2.js').done(function(){
+					'/raw/259acae3a202313c83fddf1461e90f009bfb82e1/processQuestionnaireData_v2.js').done(function(){
+		setNewTableDiv('#patient-table-entityReport');
 		<#---Get the info and put it in the table-->
 		getGenotype(url+ownerUsername, '#patient_report_chromosome');
 		$.when.apply($, promises).then(function() {
@@ -69,6 +71,11 @@ $.get(getAC).done(function(info){
           		};                
     		});
     	}); 
+	});
+});
+$('#downloadFeatures').click(function(){
+	$.getScript('https://rawgit.com/marikaris/09a3b27c53e05de33fba/raw/bd7f7c88c984032f3cfe828a79ea5d32ccbbff7e/makePDF.js').done(function(){
+		createPDF(ownerUsername);
 	});
 });
 </script>

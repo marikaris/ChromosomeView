@@ -1,3 +1,14 @@
+/*this global variable is defined as a default, to keep all the code very generic, 
+this div can be changed by changing a global variable. The process questionnaire date
+function would otherwise need this as argument, but not all functions that use that function, 
+need the div, because the information does not always directly go to a table (only in the
+patient view) The variable is used in the functions in this script that process data and put
+it in a table*/
+var tableDiv = '#patient-table';
+function setNewTableDiv(newDiv){
+/**This function changes the global variable to append to other tables*/
+	tableDiv = newDiv;
+};
 function getGenotype(href, chromosome_div){
 	// get the data of the genotype from the api (the href is given) and put the information in an image in the given div
 	$.get(href).done(function(array){
@@ -141,7 +152,7 @@ function getChrAnswerData(id_of_questionnaire, questionnaire_name, callback, cal
 							}else if(typeof answer ==='boolean'){
 								processBoolean(answer, question, callback, name);
 							}else{
-								callback(question, answer, '#patient-table', name);
+								callback(question, answer, tableDiv, name);
 							}
 						};
 					//if there is not a visible expression, just process the question
@@ -158,7 +169,7 @@ function getChrAnswerData(id_of_questionnaire, questionnaire_name, callback, cal
 						}else if(typeof answer ==='boolean'){
 							processBoolean(answer, question, callback, name);
 						}else{	//else just show the question
-							callback(question, answer, '#patient-table', name);
+							callback(question, answer, tableDiv, name);
 						}
 					}		
 				});
@@ -175,27 +186,27 @@ function processCategorical(answer, question, callback, name){
 	//if table is yesno/yesnonotyet/hearing_screening, yes means show value (id of yes = y)
 	if(answer['_href'].indexOf('yesnonotyet') >= 0){
 		if(answer['id']==='n'){
-			callback(question, answer['label'], '#patient-table', name);
+			callback(question, answer['label'], tableDiv, name);
 		}	
 	}else if(answer['_href'].indexOf('yesno') >= 0|answer['_href'].indexOf('hearing_screening') >= 0){
 		if(question === 'Anosmia'){
 			if(answer['id']==='n'){
-				callback(question, answer['label'], '#patient-table', name);
+				callback(question, answer['label'], tableDiv, name);
 			}
 		}else{
 			if(answer['id']==='y'){
-				callback(question, answer['label'], '#patient-table', name);
+				callback(question, answer['label'], tableDiv, name);
 			}	
 		}
 	//if table is cannot, cannot means show (id of cannot is n)
 	}else if(answer['_href'].indexOf('cannot')>= 0){
 		if(answer['id']==='n'){
-			callback(question, answer['label'], '#patient-table', name);
+			callback(question, answer['label'], tableDiv, name);
 		}
 	//if table is recurrent_infectioins1, id noHPO means no showing	
 	}else if(answer['_href'].indexOf('recurrent_infections1') >= 0){
 		if(answer['HPO']!== 'noHPO'){
-			callback(question, answer['HPO'], '#patient-table', name);
+			callback(question, answer['HPO'], tableDiv, name);
 		}
 	}else{ 	//else for all other tables there has been checked which values mean no showing, they are specified in the if.
 		//when these values are selected, the question will not be added to the table
@@ -205,9 +216,9 @@ function processCategorical(answer, question, callback, name){
 		answer['label']!== 'None of the above'){
 			//check if table has id or hpo
 			if('HPO' in answer && answer['HPO'].length !== 1){
-				callback(question, answer['HPO'], '#patient-table', name);
+				callback(question, answer['HPO'], tableDiv, name);
 			}else{
-				callback(question, answer['label'], '#patient-table', name);
+				callback(question, answer['label'], tableDiv, name);
 			}
 		}
 	}				
@@ -217,11 +228,11 @@ function processBoolean(answer, question, callback, name){
 	//this table is the opposite of the others, when false is answered, the body height is abnormal
 	if(question === 'Abnormality_of_body_height'){
 		if(answer === false){
-			callback(question, answer, '#patient-table', name);
+			callback(question, answer, tableDiv, name);
 		}
 	}else{	//except from abnormality of body height, answer is true means, show question
 		if(answer === true){
-			callback(question, answer, '#patient-table', name);
+			callback(question, answer, tableDiv, name);
 		}
 	}
 };
