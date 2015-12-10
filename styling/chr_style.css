@@ -88,3 +88,11 @@ a{
 .panel{
 	margin-top: 3em;
 }
+.check_span{
+	cursor: pointer;
+}
+.my_dialog{
+ 	padding: 1em;
+ 	width: 75%;
+ 	z-index: 1000;
+}

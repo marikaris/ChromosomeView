@@ -370,7 +370,7 @@ function addPatients(selectedPhenotype, patients, resultDiv){
 											'</div>'+
 										'</div>'+
 										'<div class="row">'+
-											'<div class="col-md-12" id = "patient_information">'+
+											'<div class="col-md-12" id = "patient_pheno_information">'+
 											'</div>'+
 										'</div>'+
 										'<div class="row" id="row">'+
@@ -817,11 +817,16 @@ function getPatientAberrations(startList, stopList, mutations){
 };
 function getPatientsWholePhenotype(patient){
 	tableDiv= '#patient-table-'+patient;
-	if($('#patient-table-'+patient)[0] === undefined){
-		$('#patient_information').append('<div id="dialog" title="'+patient+'">'+
+	if($('#dialog_'+patient)[0] === undefined){
+		$('#patient_pheno_information').append('<div id="dialog_'+patient+'" title="'+patient+'" class="ui-widget-content my_dialog">'+
+										'<button data-id = "'+patient+'"type="button" class="btn btn-danger closePatient pull-right">X</button>'+
+										'<h4>'+patient+'</h4>'+
   										'<table class = "table table-hover" id="patient-table-'+patient+'">'+
   										'<tbody></tbody></table>'+
 										'</div>');
-	};
+		$(function() {
+    		$( '#dialog_'+patient).draggable();
+  		});
+	}else{$('#dialog_'+patient).css('display', 'block')};
 	
 };

@@ -98,7 +98,7 @@
 </div>
 <script>
     <#--Appends the css styling to the head of the page.-->
-	$('head').append('<link rel="stylesheet" href="https://rawgit.com/marikaris/48db231276313d25723d/raw/eb0af1c5821003b7090514a0b2f32532efdcc234/chr_style.css" type="text/css">');
+	$('head').append('<link rel="stylesheet" href="https://rawgit.com/marikaris/48db231276313d25723d/raw/4a21505353a3340ae0db6730e3d4410c5fa6a1a2/chr_style.css" type="text/css">');
     var url='/api/v2/patients';
     $("#tagPicker_phenotype").select2({
         closeOnSelect:false
@@ -137,7 +137,7 @@
         $("#showPatient").css('display', 'inline');
     });
     <#--This piece of code makes the phenotype view view-->
-    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/5f672cae2f5f0a10d72798173abb9523b3ad5c64/phenotypeViewer_v2.js', function(){
+    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/907665484ce0bb41ad2f9de45cb542f84e60a454/phenotypeViewer_v2.js', function(){
     	getPhenotypes('http://localhost:8080/api/v2/chromosome6_a_c');
    	 	getPhenotypes('http://localhost:8080/api/v2/chromome6_d_h');
     	getPhenotypes('http://localhost:8080/api/v2/chromome6_i_L');
@@ -153,6 +153,14 @@
     		var selected = $('#tagPicker_phenotype').select2('data');
     		getSymptoms(selected);	
     	});	
+    	$('body').on('click', '.check_span', function(){
+    		var patient = $(this).text().replace(' ', '');
+    		getPatientsWholePhenotype(patient);
+   		});
+   		$('body').on('click', '.closePatient', function(){
+   			var patient = $(this).data('id');
+   			$('#dialog_'+patient).css('display', 'none');
+   		});
     });
     $('#selectMethod').click(function(){
     	$('#patient-report-data').html('');
@@ -191,7 +199,7 @@
         var selected = $('#tagPicker_genes').select2('data');
         $('#ge_result').css('display', 'inline');
         $('#gene_info').html('');
-        $.getScript('https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/df6ef1b43e4a8887af1b47241409ebc7359c30f4/getGenes.js').done(
+        $.getScript('https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/e27c20f6bb7e925b3ad90e51b8214ec3ccb530d2/getGenes.js').done(
             	function(){	
             processSelectedGenes(selected);
             $('.selection').mouseenter(function(){
@@ -266,7 +274,7 @@
 						});
 						var url = '/api/v2/chromosome6_array?q=ownerUsername==';
 						$.getScript('https://rawgit.com/marikaris/845fe9c278035feb64df'+
-									'/raw/6b9fa65ecd4523c11e5fd3a441426ca99fa0561b/processQuestionnaireData_v2.js').done(function(){
+									'/raw/b1baaaaecc99baafecdec441d0a0555afd7589a4/processQuestionnaireData_v2.js').done(function(){
 							setNewTableDiv('#patient-table');
 							$('#patient_report_chromosome').html('');
 							<#---Get the info and put it in the table-->

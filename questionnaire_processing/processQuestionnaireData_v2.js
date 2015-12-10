@@ -35,7 +35,7 @@ function getGenotype(href, chromosome_div){
 			genotype+= '<br/><br/>'
 		});
 		//put the genotype in the table
-		putInTable('genotype', genotype,'#patient-table');
+		putInTable('genotype', genotype, tableDiv);
 		$.getScript('https://rawgit.com/marikaris/38ff780bc7de041581d9/raw/de400ca52b3d85e68aa04f7b2e3cdf3014ec0d2d/chromoChart_v3.js').done(function(){
 			//Call the function that makes the x axis (the 6th chromosome) from the library
 			var chr6size= 170805979;
