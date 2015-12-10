@@ -827,6 +827,7 @@ function getPatientsWholePhenotype(patient){
 		$(function() {
     		$( '#dialog_'+patient).draggable();
   		});
+  		$.getScript()
 	}else{$('#dialog_'+patient).css('display', 'block')};
 	
 };

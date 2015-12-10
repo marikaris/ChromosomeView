@@ -1,10 +1,10 @@
 //from: http://stackoverflow.com/questions/16858954/how-to-properly-use-jspdf-library
-function createPDF(patient) {
+function createPDF(patient, div) {
     $.getScript('http://mrrio.github.io/jsPDF/dist/jspdf.debug.js').done(function(){
     	var pdf = new jsPDF('p', 'pt', 'letter');
     	// source can be HTML-formatted string, or a reference
 		// to an actual DOM element from which the text will be scraped.
-   		source = $('#patient-table')[0];
+   		source = $(div)[0];
     	// we support special element handlers. Register them with jQuery-style 
 		// ID selector for either ID or node name. ("#iAmID", "div", "span" etc.)
     	// There is no support for any other type of selectors 
