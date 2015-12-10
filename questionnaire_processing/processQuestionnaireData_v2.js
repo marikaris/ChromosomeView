@@ -5,6 +5,7 @@ need the div, because the information does not always directly go to a table (on
 patient view) The variable is used in the functions in this script that process data and put
 it in a table*/
 var tableDiv = '#patient-table';
+var questions2do;
 function setNewTableDiv(newDiv){
 /**This function changes the global variable to append to other tables*/
 	tableDiv = newDiv;
@@ -64,6 +65,8 @@ function getChrAnswerData(id_of_questionnaire, questionnaire_name, callback, cal
 	
 	$.get('/api/v2/'+questionnaire_name+'/'+id_of_questionnaire).done(function(q_info){
 		//iterate over each question (and answer)
+		questions2do = Object.keys(q_info);
+		done = false;
 		$.each(q_info, function(question, answer){
 			var name = q_info['ownerUsername'];
 			//skip meta data, href, owner username, id and empty answers
@@ -153,6 +156,7 @@ function getChrAnswerData(id_of_questionnaire, questionnaire_name, callback, cal
 								processBoolean(answer, question, callback, name);
 							}else{
 								callback(question, answer, tableDiv, name);
+								removeQuestionFromToDo();
 							}
 						};
 					//if there is not a visible expression, just process the question
@@ -170,6 +174,7 @@ function getChrAnswerData(id_of_questionnaire, questionnaire_name, callback, cal
 							processBoolean(answer, question, callback, name);
 						}else{	//else just show the question
 							callback(question, answer, tableDiv, name);
+							removeQuestionFromToDo();
 						}
 					}		
 				});
@@ -177,7 +182,15 @@ function getChrAnswerData(id_of_questionnaire, questionnaire_name, callback, cal
 			}
 		});
 		$.when.apply($, promises).then(function() {
-    		if(callbackQuestionsDone) callbackQuestionsDone();
+		//yes this part is ugly, suggestions are welcome but I think i tried everything
+		//It is to check if all questions are not only called (promises) but also executed... 
+			function checkQuestionsDone(){
+				if(questions2do.length === 0){
+					if(callbackQuestionsDone) callbackQuestionsDone();
+				}else{setTimeout(checkQuestionsDone, 500);
+				};
+			};
+			checkQuestionsDone();
 		});
 	});
 };
@@ -187,26 +200,31 @@ function processCategorical(answer, question, callback, name){
 	if(answer['_href'].indexOf('yesnonotyet') >= 0){
 		if(answer['id']==='n'){
 			callback(question, answer['label'], tableDiv, name);
+			removeQuestionFromToDo();
 		}	
 	}else if(answer['_href'].indexOf('yesno') >= 0|answer['_href'].indexOf('hearing_screening') >= 0){
 		if(question === 'Anosmia'){
 			if(answer['id']==='n'){
 				callback(question, answer['label'], tableDiv, name);
+				removeQuestionFromToDo();
 			}
 		}else{
 			if(answer['id']==='y'){
 				callback(question, answer['label'], tableDiv, name);
+				removeQuestionFromToDo();
 			}	
 		}
 	//if table is cannot, cannot means show (id of cannot is n)
 	}else if(answer['_href'].indexOf('cannot')>= 0){
 		if(answer['id']==='n'){
 			callback(question, answer['label'], tableDiv, name);
+			removeQuestionFromToDo();
 		}
 	//if table is recurrent_infectioins1, id noHPO means no showing	
 	}else if(answer['_href'].indexOf('recurrent_infections1') >= 0){
 		if(answer['HPO']!== 'noHPO'){
 			callback(question, answer['HPO'], tableDiv, name);
+			removeQuestionFromToDo();
 		}
 	}else{ 	//else for all other tables there has been checked which values mean no showing, they are specified in the if.
 		//when these values are selected, the question will not be added to the table
@@ -217,8 +235,10 @@ function processCategorical(answer, question, callback, name){
 			//check if table has id or hpo
 			if('HPO' in answer && answer['HPO'].length !== 1){
 				callback(question, answer['HPO'], tableDiv, name);
+				removeQuestionFromToDo();
 			}else{
 				callback(question, answer['label'], tableDiv, name);
+				removeQuestionFromToDo();
 			}
 		}
 	}				
@@ -229,10 +249,12 @@ function processBoolean(answer, question, callback, name){
 	if(question === 'Abnormality_of_body_height'){
 		if(answer === false){
 			callback(question, answer, tableDiv, name);
+			removeQuestionFromToDo();
 		}
 	}else{	//except from abnormality of body height, answer is true means, show question
 		if(answer === true){
 			callback(question, answer, tableDiv, name);
+			removeQuestionFromToDo();
 		}
 	}
 };
@@ -252,4 +274,8 @@ function putInTable(question, answer, table_id){
 			$('.' + question).append(', ' + answer);
 		}
 	}
+};
+function removeQuestionFromToDo(question){
+	var indexOfQuestion = questions2do.indexOf(question);
+	questions2do.splice(indexOfQuestion, 1);
 };

@@ -37,7 +37,7 @@ function processSelectedGenes(checkedGenes){
         putInDropdown('#phenotype-optionList', 'Patients with gene: '+gene_name, ensembl);
     	loadEnsemblInfoOfGene(ensembl, '#gene_info');
         $.getScript('https://rawgit.com/marikaris/845fe9c278035feb64df'+
-					'/raw/7d75f1c97af7117fde5029f4e868662495869970/processQuestionnaireData_v2.js').done(function(){
+					'/raw/6b9fa65ecd4523c11e5fd3a441426ca99fa0561b/processQuestionnaireData_v2.js').done(function(){
         	loadPatientsWithGene(ensembl, '#patient_deletion', '#patient_duplication');
         });
     });
@@ -234,6 +234,7 @@ algorithm:
 			phenotypes = extractPatients(patientsDeletion);
 			break;
 		case 'Patients with duplication':
+			console.log(patientsDuplication);
 			phenotypes = extractPatients(patientsDuplication);
 			break;
 		//when a gene is selected, the default is used
@@ -252,12 +253,13 @@ algorithm:
 function extractPatients(specList){
 /**This function needs a list with specified patients and them extracts them from the phenotypes table*/
 	var newPhenoList = [];
-	$.each(phenoList, function(index, phenoObj){
+	$.each(phenoList, function(pheno_index, phenoObj){
 		patients = phenoObj['patients'];
 		var patientsWithPheno = [];
-		$.each(specList, function(index, patient){
-			if($.inArray(patient, patients)){
+		$.each(specList, function(patient_index, patient){
+			if($.inArray(patient, patients) !== -1){
 				patientsWithPheno.push(patient);
+				console.log(phenoObj['phenotype'], 'old', patients, patient);
 			}
 		});
 		if(patientsWithPheno.length !== 0){
@@ -266,7 +268,8 @@ function extractPatients(specList){
 			newPhenoObj['patients']=patientsWithPheno;
 			newPhenoObj['numberOfPatients']=patientsWithPheno.length;
 			newPhenoList.push(newPhenoObj);
-		}
+			console.log(phenoObj['phenotype'], 'new', patientsWithPheno, 'pushed');
+		};
 	});
 	//sort the list
 	var phenotypesWithSpec= sortPhenoList(newPhenoList);

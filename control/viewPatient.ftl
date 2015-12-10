@@ -50,7 +50,7 @@ $.get(getAC).done(function(info){
 	});
 	var url = '/api/v2/chromosome6_array?q=ownerUsername==';
 	$.getScript('https://rawgit.com/marikaris/845fe9c278035feb64df'+
-					'/raw/259acae3a202313c83fddf1461e90f009bfb82e1/processQuestionnaireData_v2.js').done(function(){
+					'/raw/6b9fa65ecd4523c11e5fd3a441426ca99fa0561b/processQuestionnaireData_v2.js').done(function(){
 		setNewTableDiv('#patient-table-entityReport');
 		<#---Get the info and put it in the table-->
 		getGenotype(url+ownerUsername, '#patient_report_chromosome');
