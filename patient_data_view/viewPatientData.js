@@ -1,7 +1,7 @@
-function getPatientInfo(ownerUsername, wholeDiv, searchDiv, tableDiv, chromosomeDiv, withChromome){
+function getPatientInfo(ownerUsername, wholeDiv, searchDiv, tableDiv, chromosomeDiv, withChromosome){
 /**This function gets the information of one patient and puts the phenotype information in
 a table and the genotype information in an image. */
-	withChromosome = typeof withChromosome !== 'undefined' ? withChromosome : true;
+	typeof withChromosome !== 'undefined' ? withChromosome : true;
 	var promises = [];
 	var getAC ='/api/v2/chromosome6_a_c?attrs=id&q=ownerUsername=='+ownerUsername;
 	var getDH = '/api/v2/chromome6_d_h?attrs=id&q=ownerUsername=='+ownerUsername;

@@ -96,4 +96,7 @@ a{
  	width: 75%;
  	z-index: 1000;
 }
-.pheno_patient_table_div{}
+.pheno_patient_table_div{
+	overflow: auto;
+	max-height:25vh;
+}

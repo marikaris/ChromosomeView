@@ -98,7 +98,7 @@
 </div>
 <script>
     <#--Appends the css styling to the head of the page.-->
-	$('head').append('<link rel="stylesheet" href="https://rawgit.com/marikaris/48db231276313d25723d/raw/b96b724bf467a0684d33b2a23bf4be9d9c1bfb41/chr_style.css" type="text/css">');
+	$('head').append('<link rel="stylesheet" href="https://rawgit.com/marikaris/48db231276313d25723d/raw/ab4e9c8b59d7e9a0829d29eb8b1678358d5f08df/chr_style.css" type="text/css">');
     var url='/api/v2/patients';
     $("#tagPicker_phenotype").select2({
         closeOnSelect:false
@@ -137,7 +137,7 @@
         $("#showPatient").css('display', 'inline');
     });
     <#--This piece of code makes the phenotype view view-->
-    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/f156a440b84aa12f631f81c6cd33f4edaead06cb/phenotypeViewer_v2.js', function(){
+    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/c9a956414623241794d43e01e83dc966259ba2b0/phenotypeViewer_v2.js', function(){
     	getPhenotypes('http://localhost:8080/api/v2/chromosome6_a_c');
    	 	getPhenotypes('http://localhost:8080/api/v2/chromome6_d_h');
     	getPhenotypes('http://localhost:8080/api/v2/chromome6_i_L');
