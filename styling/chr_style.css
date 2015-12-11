@@ -93,10 +93,11 @@ a{
 }
 .my_dialog{
  	padding: 1em;
- 	width: 75%;
+ 	width: 50%;
+ 	height: 20em;
  	z-index: 1000;
 }
 .pheno_patient_table_div{
 	overflow: auto;
-	max-height:25vh;
+	height: 80% !important;
 }

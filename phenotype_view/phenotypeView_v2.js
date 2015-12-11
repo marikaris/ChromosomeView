@@ -827,9 +827,9 @@ function getPatientsWholePhenotype(patient){
   			getPatientInfo(patient, '#patient-wholeDiv-'+patient, 'search_through_'+patient, 'patient-table-'+patient, patient+'_report_chromosome', false);
   		});
   		$(function() {
-    		$( '#dialog_'+patient).draggable().resizable({alsoResize: '#patient-table-'+patient, maxHeight:'50vh', minHeight: '10vw'});
+    		$( '#dialog_'+patient).draggable().resizable({alsoResize: '#patient-table-'+patient, maxHeight:'50vh', minHeight: '10vh'});
   		});
-  		$('#patient-table-'+patient).resizable({containment: '#dialog_'+patient});
+  		$('#patient-table-'+patient).resizable({containment: '#dialog_'+patient, maxHeight:'50vh', minHeight: '10vh'});
 	}else{$('#dialog_'+patient).css('display', 'block')};
 	
 };
