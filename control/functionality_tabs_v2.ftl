@@ -56,10 +56,10 @@
             	<br/>
             	<b>Select patients with: </b>
             	<div class="radio cutOff">
-  					<label><input type="radio" name="optradio" checked="checked" value="default">All symptoms</label>
+  					<label><input type="radio" name="optradio" checked="checked" value="default">All selected phenotypes</label>
 				</div>
 				<div class="radio cutOff">
-  					<label><input type="radio" name="optradio" value="custom">At least <input id ="nrOfSymptoms" type="number"> of the symptoms</label>
+  					<label><input type="radio" name="optradio" value="custom">At least <input id ="nrOfSymptoms" type="number"> of the phenotypes</label>
 				</div>
                 <div class="pull-right">
                     <button id="search_button_phenotype"class="btn btn-default search_button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>Search</button>
@@ -249,53 +249,11 @@
 				$('#patient-table').html('<tbody></tbody>');
 				<#---Get the selected value-->
 				var selected = 	$('#tagPicker_patient').select2('data');	
-				<#---Get the selected id in the a-c questionnaire part-->
-				var patient_id_a_c = selected['id'];
 				<#---Get the owner user name (this one is the same in all questionnaire parts and array data of one patient
 						and could be used as patient id. -->
 				var ownerUsername = selected['text'];
-				<#---Get the data of the second part of the questionnaire-->
-				$.get('/api/v2/chromome6_d_h').done(function(dhInfo){
-					var patient_items_d_h = dhInfo['items'];
-					<#--Check for each item if the owneruser name is the one we're looking for--->
-					$.each(patient_items_d_h, function(index, patient_dh){
-						if(patient_dh['ownerUsername']=== ownerUsername){
-							<#---Save the id of the patient in this questionnaire part-->
-							patient_id_d_h = patient_dh['id'];
-						}
-					});
-					<#---Get the next id (of part three)-->
-					$.get('/api/v2/chromome6_i_L').done(function(ilInfo){
-						var patient_items_i_l = ilInfo['items'];
-						$.each(patient_items_i_l, function(index, patient_il){
-							if(patient_il['ownerUsername']=== ownerUsername){
-								patient_id_i_l = patient_il['id'];
-							}
-						});
-						var url = '/api/v2/chromosome6_array?q=ownerUsername==';
-						$.getScript('https://rawgit.com/marikaris/845fe9c278035feb64df'+
-									'/raw/b1baaaaecc99baafecdec441d0a0555afd7589a4/processQuestionnaireData_v2.js').done(function(){
-							setNewTableDiv('#patient-table');
-							$('#patient_report_chromosome').html('');
-							<#---Get the info and put it in the table-->
-							getGenotype(url+ownerUsername, '#patient_chromosome');
-							getChrAnswerData(patient_id_a_c, 'chromosome6_a_c', putInTable);
-							getChrAnswerData(patient_id_d_h, 'chromome6_d_h', putInTable);
-							getChrAnswerData(patient_id_i_l, 'chromome6_i_L', putInTable);
-							<#--Search through table, code from: http://stackoverflow.com/questions/31467657/how-can-i-search-in-a-html-table-without-using-any-mysql-queries-just-a-plain-j-->
-							$("#search_through_table").keyup(function(){
-       						 	_this = this;
-        						<#-- Show only matching TR, hide rest of them-->
-        						$.each($("#patient-table tbody").find("tr"), function() {
-            						if($(this).text().toLowerCase().indexOf($(_this).val().toLowerCase()) == -1){
-               							$(this).hide();
-            						}else{
-						       			$(this).show();
-          							}                
-       							});
-    						}); 
-						});
-					});
+				$.getScript('https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/825d5882d20702eb116d5cbb4639785b160c2f6b/patient_data_view.js').done(function(){
+					getPatientInfo(ownerUsername, '#patient_information', 'search_through_table', 'patient-table', 'patient_chromosome');
 				});
 			});
 		});	
