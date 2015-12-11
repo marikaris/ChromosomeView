@@ -6,9 +6,15 @@
 
 <#-- modal body -->
 <div class="modal-body">
-	<h3>Patient ${entity.getString("ownerUsername")!?html}</h3>
-	<br/>
-	<div id = "patient-report-data">
+	<div class = "row">
+		<div id="patientEntityTitle" class="col-md-12">
+			<h3>Patient ${entity.getString("ownerUsername")!?html}</h3>
+			<br/>
+		</div>
+	</div>
+	<div class="row">
+		<div id = "patient-report-data" class = "col-md-10 col-md-offset-1">
+		</div>
 	</div>
 	<button id="downloadFeatures" type="button" class="btn btn-info">Download patients features</button>
 </div>
@@ -22,7 +28,7 @@
 <#--Appends the css styling to the head of the page.-->
 $('head').append('<link rel="stylesheet" href="https://rawgit.com/marikaris/48db231276313d25723d/raw/984cf56fe23d97a7c9fb3272df2cbb289d8fb39d/chr_style.css" type="text/css">');
 var ownerUsername = '${entity.getString("ownerUsername")!?html}';
-$.getScript('https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/8d686ebe6f947c8b17ba2d482c4eca6c4d674c12/patient_data_view.js').done(function(){
+$.getScript('https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/825d5882d20702eb116d5cbb4639785b160c2f6b/patient_data_view.js').done(function(){
 	getPatientInfo(ownerUsername, '#patient-report-data', 'search_through_report_table', 'patient-table-entityReport', 'patient_report_chromosome');
 });
 $('#downloadFeatures').click(function(){
