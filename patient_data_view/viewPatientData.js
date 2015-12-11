@@ -1,4 +1,7 @@
-function getPatientInfo(ownerUsername, wholeDiv, searchDiv, tableDiv, chromosomeDiv){
+function getPatientInfo(ownerUsername, wholeDiv, searchDiv, tableDiv, chromosomeDiv, withChromome){
+/**This function gets the information of one patient and puts the phenotype information in
+a table and the genotype information in an image. */
+	withChromosome = typeof withChromosome !== 'undefined' ? withChromosome : true;
 	var promises = [];
 	var getAC ='/api/v2/chromosome6_a_c?attrs=id&q=ownerUsername=='+ownerUsername;
 	var getDH = '/api/v2/chromome6_d_h?attrs=id&q=ownerUsername=='+ownerUsername;
@@ -30,8 +33,10 @@ function getPatientInfo(ownerUsername, wholeDiv, searchDiv, tableDiv, chromosome
 					'/raw/b1baaaaecc99baafecdec441d0a0555afd7589a4/processQuestionnaireData_v2.js').done(function(){
 			setNewTableDiv('#'+tableDiv);
 			$(chromosomeDiv).html('');
-			//Get the info and put it in the table
-			getGenotype(url+ownerUsername, '#'+chromosomeDiv);
+			if(withChromosome){
+				//Get the info and put it in the table and graph
+				getGenotype(url+ownerUsername, '#'+chromosomeDiv);
+			};
 			$.when.apply($, promises).then(function() {
 				getChrAnswerData(patient_id_a_c, 'chromosome6_a_c', putInTable);
 				getChrAnswerData(patient_id_d_h, 'chromome6_d_h', putInTable);

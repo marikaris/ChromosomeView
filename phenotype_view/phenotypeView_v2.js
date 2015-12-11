@@ -821,13 +821,14 @@ function getPatientsWholePhenotype(patient){
 		$('#patient_pheno_information').append('<div id="dialog_'+patient+'" title="'+patient+'" class="ui-widget-content my_dialog">'+
 										'<button data-id = "'+patient+'"type="button" class="btn btn-danger closePatient pull-right">X</button>'+
 										'<h4>'+patient+'</h4>'+
-  										'<table class = "table table-hover" id="patient-table-'+patient+'">'+
-  										'<tbody></tbody></table>'+
+  										'<div id="patient-wholeDiv-'+patient+'" class="pheno_patient_table_div"></div>'+
 										'</div>');
 		$(function() {
     		$( '#dialog_'+patient).draggable();
   		});
-  		$.getScript()
+  		$.getScript('https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/ec7280203e1a704c049671556f95adb52ce2efd7/patient_data_view.js').done(function(){
+  			getPatientInfo(patient, '#patient-wholeDiv-'+patient, 'search_through_'+patient, 'patient-table-'+patient, patient+'_report_chromosome', false);
+  		});
 	}else{$('#dialog_'+patient).css('display', 'block')};
 	
 };
