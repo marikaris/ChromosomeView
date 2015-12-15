@@ -39,11 +39,12 @@ class Genes2EmxAppender:
         self.emx.save_file_changes()
         print("Gene table created and filled, file saved")
 
+
 def run():
     parse_cli = CliParser()
-    geneFile= parse_cli.get_gene_file()
+    gene_file = parse_cli.get_gene_file()
     emx = parse_cli.get_emx_file()
-    xl_file_changer = Genes2EmxAppender(emx, geneFile)
+    xl_file_changer = Genes2EmxAppender(emx, gene_file)
     xl_file_changer.alter_attributes()
     xl_file_changer.make_gene_table()
     print("I'm done! You finished your coffee (or coco)?!")

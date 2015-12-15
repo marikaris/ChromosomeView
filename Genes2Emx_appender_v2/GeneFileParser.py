@@ -30,6 +30,7 @@ class GeneFileParser:
                 else:
                     gene = self.genes[gene_ens]
                     self.updateGene(gene_acc, gene_desc, geneStart, geneStop, gene)
+
     def makeGene(self, name, start, stop, mim_accesion, mim_description, ensembl):
         """function makeGene
         makes a gene object
@@ -59,7 +60,7 @@ class GeneFileParser:
         
         returns 
         """
-        self.genes.update({gene_ens:gene})
+        self.genes.update({gene_ens : gene})
     
     def getGenes(self):
         """function getGenes
@@ -68,10 +69,10 @@ class GeneFileParser:
         return self.genes
 
     def __str__(self):
-        printValue = ""
+        print_value = ""
         for gene in self.genes:
-            printValue += str(self.genes[gene])
-        return printValue
+            print_value += str(self.genes[gene])
+        return print_value
     
 
 def run():

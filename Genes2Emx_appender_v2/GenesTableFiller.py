@@ -32,7 +32,7 @@ class GenesTableFiller:
 
 def run():
     emx = EmxFile("files/test_data.xlsx")
-    geneParser = GeneFileParser("files/chr6_b38_genes.txt")
+    geneParser = GeneFileParser("files/chr6_b37_genes.txt")
     genes = geneParser.getGenes()
     genesTableFiller = GenesTableFiller(emx, genes)
     genesTableFiller.add_genes_to_table()
