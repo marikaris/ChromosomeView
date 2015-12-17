@@ -268,6 +268,10 @@ function getGenesOfPatients(patients_unsorted, callbackFunction){
 	//this deferred object is resolved when the last gene of the last patient is appended
 	//to the genesInRegion object and counted. 
 	var lastGeneOfLastPatient = $.Deferred();
+	/*sort on the longest aberration, to make sure, this one will be processed fast 
+	(because it is the slowest and we can be sure this one is the last one running)
+	Fixed a bug in which the deferred resolved at the last one in the array, but the
+	patient with the longest aberration was still being processed*/
 	var patients = patients_unsorted.sort(
 		function(patient1, patient2){
 			if(patient1.longest === undefined){
@@ -322,19 +326,9 @@ function getGenesOfPatients(patients_unsorted, callbackFunction){
 						genesInRegion[gene['ensembl_id']]['patients'] = [patient['patient_id']];
 					}
 					/*
-					* This statement checks: 
-					* - if the current start is equal to the start position of the last patient
-					* - if the current stop is equal to the stop position of the last patient
-					* 
-					* When these two checks equal TRUE, we know the genes of last patient are being processed.
-					* The second part checks if the last gene is being handled by checking if the (gene list length) -1 is equal to the current index of the $.each loop
-					* 
-					* If these checks are true, the last gene of the last patient is reached and the deferred object can resolve, which later 
-					* triggers the function to continue
+					* Check if the last patient is processed, and the last position of the patient and the last gene
 					*/
-					console.log(patients.length-1 , patient_iteration , start_index , starts.length-1 , genes.length-1 , gene_index);
 					if(patients.length-1 === patient_iteration && start_index === starts.length-1 && genes.length-1 === gene_index){
-						console.log('**RESOLVE**');
 						lastGeneOfLastPatient.resolve();
 					};
 				});
