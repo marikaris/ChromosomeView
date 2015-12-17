@@ -257,7 +257,7 @@ function hideDelDup(type){
         
     });
 }
-function getGenesOfPatients(patients, callbackFunction){
+function getGenesOfPatients(patients_unsorted, callbackFunction){
 /** getGenesOfPatients gets the genes in the region of the patient by calling the rest
 * api on the genes table with a query that specifies the region of the patient, to get only
 * the genes in that region. This is done for each patient. The patients array contains objects
@@ -268,13 +268,39 @@ function getGenesOfPatients(patients, callbackFunction){
 	//this deferred object is resolved when the last gene of the last patient is appended
 	//to the genesInRegion object and counted. 
 	var lastGeneOfLastPatient = $.Deferred();
+	var patients = patients_unsorted.sort(
+		function(patient1, patient2){
+			if(patient1.longest === undefined){
+				patient1.longest = 0;
+			}
+			if(patient2.longest === undefined){
+				patient2.longest = 0;
+			}
+			if(patient1.longest === 0){
+				$.each(patient1.start, function(sort_index1, start_sort1){
+					length = patient1.stop[sort_index1]-start_sort1
+					if(length > patient1.longest){
+						patient1.longest = length;
+					};
+				});
+			};
+			if(patient2.longest === 0){
+				$.each(patient2.start, function(sort_index2, start_sort2){
+					length = patient2.stop[sort_index2]-start_sort2
+					if(length > patient2.longest){
+						patient2.longest = length;
+					};
+				});
+			};
+			return molgenis.naturalSort(patient1.longest, patient2.longest);
+		});
 	//This array is filled later with all the gene objects and then sorted on the count variable in the objects
 	$.each(patients, function(patient_iteration, patient){
 		var starts = patient['start'];
 		var stops = patient['stop'];
 		//call the api for this region
-		$.each(starts, function(index, start){ 
-			stop = stops[index];
+		$.each(starts, function(start_index, start){ 
+			stop = stops[start_index];
 			$.get('/api/v2/genes?attrs=~id,gene_name,ensembl_id,omim_morbid_accesion,omim_morbid_description,start,stop&q=start=le='+
 				stop+';stop=ge='+start+'&num=4000').done(function(geneData){
 				var genes = geneData['items'];
@@ -306,7 +332,9 @@ function getGenesOfPatients(patients, callbackFunction){
 					* If these checks are true, the last gene of the last patient is reached and the deferred object can resolve, which later 
 					* triggers the function to continue
 					*/
-					if(patients[patients.length-1]['start']===starts && patients[patients.length-1]['stop']===stops && genes.length-1 === gene_index){
+					console.log(patients.length-1 , patient_iteration , start_index , starts.length-1 , genes.length-1 , gene_index);
+					if(patients.length-1 === patient_iteration && start_index === starts.length-1 && genes.length-1 === gene_index){
+						console.log('**RESOLVE**');
 						lastGeneOfLastPatient.resolve();
 					};
 				});
@@ -673,12 +701,12 @@ function checkPatients(patient, symptoms, callback){
 							matches += 1;
 						}
 					// this one is inversed (no is abnormal)
-					}else if(question === 'Anosmia'){
+					}else if(question === 'Anosmia' || question === 'puberty'){
 						if(answer['label']==='No'){
 							matches += 1;
 						}
 					//cannot are usually abnormal (= match)
-					}else if(answer['label']==='Yes' | answer['label']==='Cannot'){
+					}else if(answer['label']==='Yes' || answer['label']==='Cannot'){
 						matches += 1;
 					}
 				//this one is inversed (false is match) 

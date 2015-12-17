@@ -208,12 +208,16 @@ function processCategorical(answer, question, callback, name){
 				callback(question, answer['label'], tableDiv, name);
 				removeQuestionFromToDo();
 			}
+		}else if(question === 'puberty'){
+			callback(question, answer['label'], tableDiv, name);
+			removeQuestionFromToDo();
 		}else{
 			if(answer['id']==='y'){
 				callback(question, answer['label'], tableDiv, name);
 				removeQuestionFromToDo();
 			}	
 		}
+	}
 	//if table is cannot, cannot means show (id of cannot is n)
 	}else if(answer['_href'].indexOf('cannot')>= 0){
 		if(answer['id']==='n'){

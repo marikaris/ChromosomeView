@@ -19,6 +19,8 @@
             <li class="selection" id="geneView"><a href="#">Gene view</a></li>
             <li role="separator" class="divider"></li>
             <li class="selection" id="regionView"><a href="#">Select region on chromosome</a></li>
+            <li role="separator" class="divider"></li>
+            <li class="selection" id="chr6_map"><a href="#">Chromosome 6</a></li>
           </ul>
         </div>
     </div>
@@ -94,6 +96,10 @@
             <button id="selectRegion" class="btn btn-primary">Get patients</button>
             <div id="regionResults"></div>
         </div>
+        <div id="show_chr6">
+        	<h4>Chromosome 6</h4>
+        	<div id="target_chr6_plot"></div>
+        </div>
     </div>
 </div>
 <script>
@@ -117,27 +123,38 @@
         $("#showGene").css('display', 'none');
         $("#showRegion").css('display', 'none');
         $("#showPatient").css('display', 'none');
+        $("#show_chr6").css('display', 'none');
     });
     $('#geneView').click(function(){
         $("#showPheno").css('display', 'none');
         $("#showGene").css('display', 'inline');
         $("#showRegion").css('display', 'none');
         $("#showPatient").css('display', 'none');
+        $("#show_chr6").css('display', 'none');
     });
     $('#regionView').click(function(){
         $("#showPheno").css('display', 'none');
         $("#showGene").css('display', 'none');
         $("#showRegion").css('display', 'inline');
         $("#showPatient").css('display', 'none');
+        $("#show_chr6").css('display', 'none');
     });
     $('#patientView').click(function(){
         $("#showPheno").css('display', 'none');
         $("#showGene").css('display', 'none');
         $("#showRegion").css('display', 'none');
         $("#showPatient").css('display', 'inline');
+        $("#show_chr6").css('display', 'none');
+    });
+    $('#chr6_map').click(function(){
+        $("#showPheno").css('display', 'none');
+        $("#showGene").css('display', 'none');
+        $("#showRegion").css('display', 'none');
+        $("#showPatient").css('display', 'none');
+        $("#show_chr6").css('display', 'inline');
     });
     <#--This piece of code makes the phenotype view view-->
-    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/313b96499076d3d671cbac52a6ff24b44519112b/phenotypeViewer_v2.js', function(){
+    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/7dfb327621e1673ed0292813807bc2521992a047/phenotypeViewer_v2.js', function(){
     	getPhenotypes('http://localhost:8080/api/v2/chromosome6_a_c');
    	 	getPhenotypes('http://localhost:8080/api/v2/chromome6_d_h');
     	getPhenotypes('http://localhost:8080/api/v2/chromome6_i_L');
@@ -199,7 +216,7 @@
         var selected = $('#tagPicker_genes').select2('data');
         $('#ge_result').css('display', 'inline');
         $('#gene_info').html('');
-        $.getScript('https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/e27c20f6bb7e925b3ad90e51b8214ec3ccb530d2/getGenes.js').done(
+        $.getScript('https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/a6f6a9bab9b038f43aad6bd6370fae04f0029bdf/getGenes.js').done(
             	function(){	
             processSelectedGenes(selected);
             $('.selection').mouseenter(function(){
@@ -252,10 +269,17 @@
 				<#---Get the owner user name (this one is the same in all questionnaire parts and array data of one patient
 						and could be used as patient id. -->
 				var ownerUsername = selected['text'];
-				$.getScript('https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/825d5882d20702eb116d5cbb4639785b160c2f6b/patient_data_view.js').done(function(){
+				$.getScript('https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/11269b233fade9dbd164cd673417b997a88cb691/patient_data_view.js').done(function(){
 					getPatientInfo(ownerUsername, '#patient_information', 'search_through_table', 'patient-table', 'patient_chromosome');
 				});
 			});
 		});	
+	});
+</script>
+<script>
+	$.getScript('https://rawgit.com/linjoey/cyto-chromosome-vis/master/cyto-chromosome.js').done(function(){
+		cyto_chr.modelLoader.setDataDir('https://raw.githubusercontent.com/linjoey/cyto-chromosome-vis/master/data/');
+		var chromosomeFactory = cyto_chr.chromosome;
+		var chr_6 = chromosomeFactory().segment('6').target('#target_chr6_plot').showAxis(true).render();
 	});
 </script>
