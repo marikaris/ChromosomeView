@@ -30,7 +30,7 @@ a table and the genotype information in an image. */
 		});
 		var url = '/api/v2/chromosome6_array?q=ownerUsername==';
 		$.getScript('https://rawgit.com/marikaris/845fe9c278035feb64df'+
-					'/raw/713470cd7ed7e42ba885e754cbb671352f55c672/processQuestionnaireData_v2.js').done(function(){
+					'/raw/e0b4927bb40dea1fa9a05a6839e17d98030b0d1a/processQuestionnaireData_v2.js').done(function(){
 			setNewTableDiv('#'+tableDiv);
 			$(chromosomeDiv).html('');
 			if(withChromosome){
