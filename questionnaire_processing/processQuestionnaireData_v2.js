@@ -197,12 +197,12 @@ function getChrAnswerData(id_of_questionnaire, questionnaire_name, callback, cal
 function processCategorical(answer, question, callback, name){
 //This function processes the categorical values
 	//if table is yesno/yesnonotyet/hearing_screening, yes means show value (id of yes = y)
-	if(answer['_href'].indexOf('yesnonotyet') >= 0){
+	if(answer['_href'].indexOf('yesnonotyet') >= 0||answer['_href'].indexOf('hearing_screening') >= 0){
 		if(answer['id']==='n'){
 			callback(question, answer['label'], tableDiv, name);
 			removeQuestionFromToDo();
 		}	
-	}else if(answer['_href'].indexOf('yesno') >= 0|answer['_href'].indexOf('hearing_screening') >= 0){
+	}else if(answer['_href'].indexOf('yesno') >= 0){
 		if(question === 'Anosmia'){
 			if(answer['id']==='n'){
 				callback(question, answer['label'], tableDiv, name);
@@ -217,7 +217,6 @@ function processCategorical(answer, question, callback, name){
 				removeQuestionFromToDo();
 			}	
 		}
-	}
 	//if table is cannot, cannot means show (id of cannot is n)
 	}else if(answer['_href'].indexOf('cannot')>= 0){
 		if(answer['id']==='n'){

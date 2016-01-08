@@ -37,7 +37,7 @@ function processSelectedGenes(checkedGenes){
         putInDropdown('#phenotype-optionList', 'Patients with gene: '+gene_name, ensembl);
     	loadEnsemblInfoOfGene(ensembl, '#gene_info');
         $.getScript('https://rawgit.com/marikaris/845fe9c278035feb64df'+
-					'/raw/e0b4927bb40dea1fa9a05a6839e17d98030b0d1a/processQuestionnaireData_v2.js').done(function(){
+					'/raw/99888adf514a706d0bc559b6c16e77c242afd2e7/processQuestionnaireData_v2.js').done(function(){
         	loadPatientsWithGene(ensembl, '#patient_deletion', '#patient_duplication');
         });
     });
@@ -209,7 +209,7 @@ table in should be given and the phenotypes (a list with objects) */
 	$('#genePheno').append('<tr><th>Phenotype</th><th># Patients</th><th>Patients</th></tr>');
 	$.each(phenoInfo, function(i, phenotype){
 		$('#genePheno').append('<tr><td>'+phenotype['phenotype']+'</td><td>'+
-			phenotype['numberOfPatients']+'</td><td>'+phenotype['patients'].toString()+'</td></tr>');
+			phenotype['numberOfPatients']+'</td><td>'+phenotype['patients'].toString().replace(/,/g,'<br/>')+'</td></tr>');
 	});
 };
 function putInDropdown(divOfDropdown, whatToPutIn, id){
