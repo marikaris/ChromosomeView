@@ -29,8 +29,7 @@ a table and the genotype information in an image. */
 			patient_id_i_l = ilInfo['items'][0]['id'];
 		});
 		var url = '/api/v2/chromosome6_array?q=ownerUsername==';
-		$.getScript('https://rawgit.com/marikaris/845fe9c278035feb64df'+
-					'/raw/99888adf514a706d0bc559b6c16e77c242afd2e7/processQuestionnaireData_v2.js').done(function(){
+		$.getScript('https://rawgit.com/marikaris/845fe9c278035feb64df/raw/0d24cc3923c0b5581b436d7b9fce77e6b779e2d7/processQuestionnaireData_v2.js').done(function(){
 			setNewTableDiv('#'+tableDiv);
 			$(chromosomeDiv).html('');
 			if(withChromosome){

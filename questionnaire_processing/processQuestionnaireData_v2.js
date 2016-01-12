@@ -96,7 +96,7 @@ function getChrAnswerData(id_of_questionnaire, questionnaire_name, callback, cal
 								//is Boolean?
 								if(exp_val === 'true'|exp_val === 'false'){
 									//convert to boolean (through regex, it is a string now)
-									exp_val = Boolean(exp_val);
+									exp_val = exp_val==='true';
 									//compare them, if they are the same, the question should be shown, so if not, show is false
 									if (exp_val !== found_val){
 										show = false;

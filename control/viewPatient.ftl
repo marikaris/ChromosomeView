@@ -28,7 +28,7 @@
 <#--Appends the css styling to the head of the page.-->
 $('head').append('<link rel="stylesheet" href="https://rawgit.com/marikaris/48db231276313d25723d/raw/984cf56fe23d97a7c9fb3272df2cbb289d8fb39d/chr_style.css" type="text/css">');
 var ownerUsername = '${entity.getString("ownerUsername")!?html}';
-$.getScript('https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/3ddd88f97b82618bfcd37e415106bf3447789916/patient_data_view.js').done(function(){
+$.getScript('https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/331cf8b8116c892c7be8a5337c828626a0997eb8/patient_data_view.js').done(function(){
 	getPatientInfo(ownerUsername, '#patient-report-data', 'search_through_report_table', 'patient-table-entityReport', 'patient_report_chromosome');
 });
 $('#downloadFeatures').click(function(){

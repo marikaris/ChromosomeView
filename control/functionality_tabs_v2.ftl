@@ -216,7 +216,7 @@
         var selected = $('#tagPicker_genes').select2('data');
         $('#ge_result').css('display', 'inline');
         $('#gene_info').html('');
-        $.getScript('https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/0d80fba100fa6d6b0daa7cfaea05817a7b6771d5/getGenes.js').done(
+        $.getScript('https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/52c4fd20335a5eee23012181e17691a773ddc8b7/getGenes.js').done(
             	function(){	
             processSelectedGenes(selected);
             $('.selection').mouseenter(function(){
@@ -269,7 +269,7 @@
 				<#---Get the owner user name (this one is the same in all questionnaire parts and array data of one patient
 						and could be used as patient id. -->
 				var ownerUsername = selected['text'];
-				$.getScript('https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/3ddd88f97b82618bfcd37e415106bf3447789916/patient_data_view.js').done(function(){
+				$.getScript('https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/331cf8b8116c892c7be8a5337c828626a0997eb8/patient_data_view.js').done(function(){
 					getPatientInfo(ownerUsername, '#patient_information', 'search_through_table', 'patient-table', 'patient_chromosome');
 				});
 			});
