@@ -532,19 +532,19 @@ var chromoChart = function () {
 		var start_id = 'start_pos'+id+mutationNr;
 		var stop_id = 'stop_pos'+id+mutationNr;
 		//Div for text that shows start position. 
-		var start_position = $( '<div id="'+start_id+'"/>' );
+		var start_position = $( '<div id="'+start_id+'" class="startStopPosition"/>' );
 		$("."+id).append(start_position);
 		$("#start_pos"+id+mutationNr).css("margin-left",start*bp-25);
 		$("#start_pos"+id+mutationNr).css("margin-right",0);
 		//text that shows start position. 
 		$("#start_pos"+id+mutationNr).text(start);
 		//text that shows start position.
-		var stop_position = $( '<div id="'+stop_id+'"/>' );
+		var stop_position = $( '<div id="'+stop_id+'" class="startStopPosition"/>' );
 		//Div for text that shows start position. 
 		$("."+id).append(stop_position);
 		//Positioning the text.
 		$("#stop_pos"+id+mutationNr).css("margin-left",stop*bp+15);
-		$("#start_pos"+id+mutationNr).css("margin-bottom","-1.2em");
+		$("#start_pos"+id+mutationNr).css("margin-bottom","-1em");
 		
 		//Color the bars based on deletion or duplication and present what it is.
 		if(mutation === 'homozygote deletie'||mutation === 'homozygous deletion'||mutation === 'x0'){

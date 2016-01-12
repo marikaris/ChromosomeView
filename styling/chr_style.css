@@ -101,3 +101,6 @@ a{
 	overflow: auto;
 	height: 80% !important;
 }
+.startStopPosition{
+	font-size: 0.8em;
+}

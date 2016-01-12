@@ -85,7 +85,7 @@ function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 		});
 	});
 	//Get the library	
-	$.getScript('https://rawgit.com/marikaris/38ff780bc7de041581d9/raw/de400ca52b3d85e68aa04f7b2e3cdf3014ec0d2d/chromoChart_v3.js', function()
+	$.getScript('https://rawgit.com/marikaris/38ff780bc7de041581d9/raw/b7d493c31cd7f8c571f30c2c70695c1a3a810bc7/chromoChart_v3.js', function()
 	{	//The width of the bars in this view should be 75% of the screen width. 
 		width = $(window).width()*0.5;
 		//Call the function that makes the x axis (the 6th chromosome) from the library
@@ -144,13 +144,13 @@ function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 				var id= $(this).data('id');
 				if(this.checked){
 					$('#'+id).css('display', 'inline');
-					$('#stop_pos'+id).css('display','block');
-					$('#start_pos'+id).css('display','block');	
+					$('[id^=stop_pos'+id+']').css('display','block');
+					$('[id^=start_pos'+id+']').css('display','block');	
 					removeGenesFromTable(id);					
 				}else{
 					$('#'+id).css('display', 'none');
-					$('#start_pos'+id).css('display','none');
-					$('#stop_pos'+id).css('display','none');
+					$('[id^=stop_pos'+id+']').css('display','none');
+					$('[id^=start_pos'+id+']').css('display','none');
 					removeGenesFromTable(id);
 				}
 			});	   			   	   	
