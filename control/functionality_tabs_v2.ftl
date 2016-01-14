@@ -96,7 +96,7 @@
             <button id="selectRegion" class="btn btn-primary">Get patients</button>
             <div id="regionResults"></div>
         </div>
-        <div id="show_chr6" style="display:none">
+        <div id="show_chr6" >
         	<h4>Chromosome 6</h4>
         	<div id="target_chr6_plot"></div>
         </div>
