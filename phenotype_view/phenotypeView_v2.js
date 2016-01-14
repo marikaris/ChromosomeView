@@ -715,7 +715,7 @@ function checkPatients(patient, symptoms, callback){
 				matches += 1;
 			// if the answer is an object and not undefined or array, check if the answer HPO term or label is the symptom	
 			}else if(typeof answer === 'object' && answer != undefined && Array.isArray(answer) === false){
-				if(answer['HPO'] !== undefined){
+				if(answer['HPO'] !== undefined && answer['HPO'].length !== 1){
 					if(answer['HPO']===symptom){
 						matches += 1;
 					}

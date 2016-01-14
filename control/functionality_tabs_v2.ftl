@@ -96,7 +96,7 @@
             <button id="selectRegion" class="btn btn-primary">Get patients</button>
             <div id="regionResults"></div>
         </div>
-        <div id="show_chr6">
+        <div id="show_chr6" style="display:none">
         	<h4>Chromosome 6</h4>
         	<div id="target_chr6_plot"></div>
         </div>
@@ -154,7 +154,7 @@
         $("#show_chr6").css('display', 'inline');
     });
     <#--This piece of code makes the phenotype view view-->
-    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/28eeb1e56a7a8d186cc84299c9885a2bf141e7ae/phenotypeViewer_v2.js', function(){
+    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/300c84ed2f03d4fb685f6de78cd7b2ac7630a5ec/phenotypeViewer_v2.js', function(){
     	getPhenotypes('http://localhost:8080/api/v2/chromosome6_a_c');
    	 	getPhenotypes('http://localhost:8080/api/v2/chromome6_d_h');
     	getPhenotypes('http://localhost:8080/api/v2/chromome6_i_L');
@@ -216,7 +216,7 @@
         var selected = $('#tagPicker_genes').select2('data');
         $('#ge_result').css('display', 'inline');
         $('#gene_info').html('');
-        $.getScript('https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/131d78b81ec7d54f835ad67f635f6a9eeedced54/getGenes.js').done(
+        $.getScript('https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/e30423d9527842727297f2d8ecf04df139c009c2/getGenes.js').done(
             	function(){	
             processSelectedGenes(selected);
             $('.selection').mouseenter(function(){
@@ -269,7 +269,7 @@
 				<#---Get the owner user name (this one is the same in all questionnaire parts and array data of one patient
 						and could be used as patient id. -->
 				var ownerUsername = selected['text'];
-				$.getScript('https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/cf4d78bdf9d93b68df1a190699442b67b1716954/patient_data_view.js').done(function(){
+				$.getScript('https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/3ca985ddfb79fa3cffe8e7c3f8d3264565f4d015/patient_data_view.js').done(function(){
 					getPatientInfo(ownerUsername, '#patient_information', 'search_through_table', 'patient-table', 'patient_chromosome');
 				});
 			});

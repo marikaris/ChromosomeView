@@ -89,6 +89,7 @@ function getChrAnswerData(id_of_questionnaire, questionnaire_name, callback, cal
 								stripped_ve = ve.split("').eq(");
 								//take the first and strip the first part of it (this is the attribute to check)
 								attr = stripped_ve[0].replace("$('", '');
+								attr = attr.replace(/ /g, '');
 								//take the second part and strip the last part of it (this is the expected value)
 								exp_val = stripped_ve[1].replace(").value()", '');
 								//get the found value
