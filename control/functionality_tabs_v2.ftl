@@ -154,7 +154,7 @@
         $("#show_chr6").css('display', 'inline');
     });
     <#--This piece of code makes the phenotype view view-->
-    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/300c84ed2f03d4fb685f6de78cd7b2ac7630a5ec/phenotypeViewer_v2.js', function(){
+    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/473aa13b3b515e239d8efc075cc84e54ed18fd4a/phenotypeViewer_v2.js', function(){
     	getPhenotypes('http://localhost:8080/api/v2/chromosome6_a_c');
    	 	getPhenotypes('http://localhost:8080/api/v2/chromome6_d_h');
     	getPhenotypes('http://localhost:8080/api/v2/chromome6_i_L');
@@ -269,7 +269,7 @@
 				<#---Get the owner user name (this one is the same in all questionnaire parts and array data of one patient
 						and could be used as patient id. -->
 				var ownerUsername = selected['text'];
-				$.getScript('https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/3ca985ddfb79fa3cffe8e7c3f8d3264565f4d015/patient_data_view.js').done(function(){
+				$.getScript('https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/760e788af76341fa6ca51a71e11a0b2d101edfeb/patient_data_view.js').done(function(){
 					getPatientInfo(ownerUsername, '#patient_information', 'search_through_table', 'patient-table', 'patient_chromosome');
 				});
 			});

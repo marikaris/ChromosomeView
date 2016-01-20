@@ -129,7 +129,7 @@ function getChrAnswerData(id_of_questionnaire, questionnaire_name, callback, cal
 								//assign the attribute (question)
 								attr = visParts[0].replace("$('", '');
 								//assign the value that should be selected in the attribute
-								exp_val = visParts[1].replace("')>-1", '');
+								exp_val = visParts[1].replace("')>-1", '').replace(/ /, '');
 								attr_vals = q_info[attr];
 								//if the value check is not true, then set show false (because only one value has to be in the attribute)
 								var check;
