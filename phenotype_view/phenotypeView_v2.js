@@ -85,7 +85,7 @@ function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 		});
 	});
 	//Get the library	
-	$.getScript('https://rawgit.com/marikaris/38ff780bc7de041581d9/raw/b7d493c31cd7f8c571f30c2c70695c1a3a810bc7/chromoChart_v3.js', function()
+	$.getScript('https://rawgit.com/marikaris/38ff780bc7de041581d9/raw/c006b03276eaa9d9118f6ddcf9a751115d2fbe36/chromoChart_v3.js', function()
 	{	//The width of the bars in this view should be 75% of the screen width. 
 		width = $(window).width()*0.5;
 		//Call the function that makes the x axis (the 6th chromosome) from the library
@@ -115,11 +115,12 @@ function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 					'figureWidth':width
 				});
 				//Make it possible for the user to deselect bars by checking a checkbox
-				$('#deletion').append('<form><input type="checkbox" data-id = "'+patient['id']+'"class="checkbox check'+patient['id']+
+				$('#patient_container_'+patient['id']).append('<form><input type="checkbox" data-id = "'+patient['id']+'"class="checkbox check'+patient['id']+
 									'" checked><span id="bar_id'+patient['id']+'" class="check_span"> '+patient['id']+'<br/></span>'+
 									'</form>');
-					
-			});	
+				//make the bars able to be moved to resort them 
+				$('#deletion').sortable();
+			});
 			//Make a bar for each patient with a duplication
 			$.each(duplication, function(i, patient){
 				chromoChart.makeBar({
@@ -130,8 +131,10 @@ function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 					'figureWidth':width
 				});	
 				//Make it possible for the user to deselect bars by checking a checkbox
-				$('#duplication').append('<form><input type="checkbox" data-id = "'+patient['id']+'"class="checkbox check'+patient['id']+'" checked><span id="bar_id'+patient['id']+
+				$('#patient_container_'+patient['id']).append('<form><input type="checkbox" data-id = "'+patient['id']+'"class="checkbox check'+patient['id']+'" checked><span id="bar_id'+patient['id']+
 											'" class="check_span"> '+patient['id']+'<br/></span></form>');
+				//make the bars able to be moved to resort them 
+				$('#duplication').sortable();
 			});
 			//If the selected_patient is undefined, the phenotype page is not reached from a patient, so the patient cannot be selected
 			if(selected_patient !='undefined'){

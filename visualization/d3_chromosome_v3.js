@@ -95,7 +95,9 @@ var chromoChart = function () {
 			mutations = typeof mutations !== 'undefined' ? mutations : [[start, stop, mut_type, benign]];	
 			//Set range of width
 			var x = d3.scale.linear().range([0, figureWidth]);
-			$(chart_div).append('<div class="'+patient_id+
+			$(chart_div).append('<div id="patient_container_'+patient_id+'" class="patient_container draggable ui-widget-conten"></div>');
+			var patient_container = $('#patient_container_'+patient_id);
+			$(patient_container).append('<div class="'+patient_id+
 				'" style="display:none"></div><svg class="chart" id="'+
 				patient_id+'"></svg>');
 		//Create the chart in which the bar will come.
