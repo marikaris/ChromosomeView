@@ -250,15 +250,13 @@ function selectPatientsInRegion(start, stop){
 function hideDelDup(type){
 /** hideDelDup hides deletions or duplications. 
 * The parameter type is 'deletion' or 'duplication' (these names are the same as
-* the id of the div) and the svg's in the div are the bars, the id of the bars is the
-* id of the patient and class check*id* is the checkbox of the patient. 
+* the id of the div), these div hides or shows.  
 */
-	$.each($('#'+type+' svg'), function(i, element){
-        id = element.id;
-        $('.check'+id).prop('checked', false);
-		$('.checkbox').trigger('change');
-        
-    });
+	if($('#'+type).css('display')==="none"){
+		$('#'+type).show();
+	}else{
+		$('#'+type).hide();
+	}
 }
 function getGenesOfPatients(patients_unsorted, callbackFunction){
 /** getGenesOfPatients gets the genes in the region of the patient by calling the rest
