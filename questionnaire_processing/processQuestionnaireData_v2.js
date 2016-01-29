@@ -62,7 +62,6 @@ function getChrAnswerData(id_of_questionnaire, questionnaire_name, callback, cal
 	//get the information from the api
 	
 	var promises = [];
-	
 	$.get('/api/v2/'+questionnaire_name+'/'+id_of_questionnaire).done(function(q_info){
 		//iterate over each question (and answer)
 		questions2do = Object.keys(q_info);

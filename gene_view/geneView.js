@@ -36,10 +36,7 @@ function processSelectedGenes(checkedGenes){
         var gene_name = sel.text;
         putInDropdown('#phenotype-optionList', 'Patients with gene: '+gene_name, ensembl);
     	loadEnsemblInfoOfGene(ensembl, '#gene_info');
-        $.getScript('https://rawgit.com/marikaris/845fe9c278035feb64df'+
-					'/raw/86a458403f988cf8e5d5562c2dd3f11af0b11cd0/processQuestionnaireData_v2.js').done(function(){
-        	loadPatientsWithGene(ensembl, '#patient_deletion', '#patient_duplication');
-        });
+        loadPatientsWithGene(ensembl, '#patient_deletion', '#patient_duplication');
     });
 };
 function loadEnsemblInfoOfGene(geneId, resultDiv){

@@ -103,9 +103,22 @@
     </div>
 </div>
 <script>
-    <#--Appends the css styling to the head of the page.-->
+    <#--Appends the css styling and javascript files to the head of the page.-->
 	$('head').append('<link rel="stylesheet" href="https://rawgit.com/marikaris/48db231276313d25723d/raw/f0e96c01e98397a82a7f970f58b215f577707066/chr_style.css" type="text/css">');
+	var loadQuestionnaire = document.createElement('script');
+	loadQuestionnaire.type = 'text/javascript';
+	loadQuestionnaire.src = 'https://rawgit.com/marikaris/845fe9c278035feb64df/raw/55b2bee9ea071ca028c7107db059f8c6255fd760/processQuestionnaireData_v2.js';
+	$('head').append(loadQuestionnaire);
+    var geneView = document.createElement('script');
+    geneView.type = 'text/javascript';
+    geneView.src = 'https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/d950d92cc176f2a4b6622945d2818d7aecb0738f/getGenes.js';
+	$('head').append(geneView);
+	var patientView = document.createElement('script');
+	patientView.type='text/javascript';
+	patientView.src = 'https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/1441f18b2807145ea0c82ae8697454ad72091ae2/patient_data_view.js';
+	$('head').append(patientView);
     var url='/api/v2/patients';
+    
     $("#tagPicker_phenotype").select2({
         closeOnSelect:false
     });
@@ -216,19 +229,16 @@
         var selected = $('#tagPicker_genes').select2('data');
         $('#ge_result').css('display', 'inline');
         $('#gene_info').html('');
-        $.getScript('https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/e30423d9527842727297f2d8ecf04df139c009c2/getGenes.js').done(
-            	function(){	
-            processSelectedGenes(selected);
-            $('.selection').mouseenter(function(){
-        		$(this).addClass('active');
-    		});
-    		$('.selection').mouseleave(function(){
-        		$(this).removeClass('active');
-    		});
-    		$('a.selection.phenoOption').click(function(){
-    			selectDropDownOption('#genePhenoTable-title', $(this));
-    		});
-        });
+        processSelectedGenes(selected);
+        $('.selection').mouseenter(function(){
+        	$(this).addClass('active');
+    	});
+    	$('.selection').mouseleave(function(){
+        	$(this).removeClass('active');
+    	});
+    	$('a.selection.phenoOption').click(function(){
+			selectDropDownOption('#genePhenoTable-title', $(this));
+    	});
     });
 </script>
 <script>
@@ -269,9 +279,7 @@
 				<#---Get the owner user name (this one is the same in all questionnaire parts and array data of one patient
 						and could be used as patient id. -->
 				var ownerUsername = selected['text'];
-				$.getScript('https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/760e788af76341fa6ca51a71e11a0b2d101edfeb/patient_data_view.js').done(function(){
-					getPatientInfo(ownerUsername, '#patient_information', 'search_through_table', 'patient-table', 'patient_chromosome');
-				});
+				getPatientInfo(ownerUsername, '#patient_information', 'search_through_table', 'patient-table', 'patient_chromosome');
 			});
 		});	
 	});
