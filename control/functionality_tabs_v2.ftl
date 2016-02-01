@@ -115,7 +115,7 @@
 	$('head').append(geneView);
 	var patientView = document.createElement('script');
 	patientView.type='text/javascript';
-	patientView.src = 'https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/1441f18b2807145ea0c82ae8697454ad72091ae2/patient_data_view.js';
+	patientView.src = 'https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/e6eff40d9a35ad67723e4bcc1c7e3deb13e85d4a/patient_data_view.js';
 	$('head').append(patientView);
     var url='/api/v2/patients';
     
@@ -227,10 +227,12 @@
     				'<li><a href="#" id="phenoOption-deletion" class="selection phenoOption">Patients with deletion</a></li>'+
     				'<li><a href="#" id="phenoOption-duplication" class="selection phenoOption">Patients with duplication</a></li>');
         var selected = $('#tagPicker_genes').select2('data');
-        console.log(selected);
         $('#ge_result').css('display', 'inline');
         $('#gene_info').html('');
-        processSelectedGenes(selected);
+        if(selected.length !== 0){
+        	console.log(selected);
+        	processSelectedGenes(selected);
+        }
         $('.selection').mouseenter(function(){
         	$(this).addClass('active');
     	});
@@ -258,7 +260,8 @@
 	$('#patient_table_div').html('<table id="patient-table" class="table table-hover"><tbody></tbody></table>');
 	<#---Make the patients selectable-->
 		$('#tagPicker_patient').select2();
-		$.get('/api/v2/chromosome6_a_c').done(function(info){
+		<#--Get the names from the last part of the questionnaire (when this is filled in, all parts should be filled in)-->
+		$.get('/api/v2/chromome6_i_L').done(function(info){
 			var patient_info = info['items'];
 			<#---14 is the length of the tagPicker if it is empty, so only fill with patients if it is empty (lazy loading)-->
 			if($('#tagPicker_patient').text().length===14){
