@@ -167,7 +167,7 @@
         $("#show_chr6").css('display', 'inline');
     });
     <#--This piece of code makes the phenotype view view-->
-    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/49d5e627646f9c66dcceedda6a81832442ffe8dd/phenotypeViewer_v2.js', function(){
+    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/7f334a6ed13eec1afa5a6b76efdec7efec5389a2/phenotypeViewer_v2.js', function(){
     	getPhenotypes('http://localhost:8080/api/v2/chromosome6_a_c');
    	 	getPhenotypes('http://localhost:8080/api/v2/chromome6_d_h');
     	getPhenotypes('http://localhost:8080/api/v2/chromome6_i_L');
@@ -227,6 +227,7 @@
     				'<li><a href="#" id="phenoOption-deletion" class="selection phenoOption">Patients with deletion</a></li>'+
     				'<li><a href="#" id="phenoOption-duplication" class="selection phenoOption">Patients with duplication</a></li>');
         var selected = $('#tagPicker_genes').select2('data');
+        console.log(selected);
         $('#ge_result').css('display', 'inline');
         $('#gene_info').html('');
         processSelectedGenes(selected);
@@ -243,10 +244,10 @@
 </script>
 <script>
 	<#--Here the region view is done-->
-    $.getScript('https://rawgit.com/marikaris/280e033da84cc3dfac82/raw/c2081c27034cf4d7af35be2c0f2b90d0810ee462/regionView.js').done(function(){
+    $.getScript('https://rawgit.com/marikaris/280e033da84cc3dfac82/raw/43d0c99a9326499abd55eb362603eccf516a1f2e/regionView.js').done(function(){
     	makeSelect('#chromosome_bar', '#posX-1', '#posX-2', '#draggable1', '#draggable2', '#bar');
    		$('#selectRegion').on('click', function(){
-   			$('#regionResults').html('');
+   			$('#regionResults').html('<br/>Loading...');
    			getPatients($('#posX-1').val(), $('#posX-2').val());
    		});
     });

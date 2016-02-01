@@ -63,10 +63,7 @@ function makeSelect(chromosome_bar, start_div, stop_div, drag_start, drag_stop, 
 //use the getPatientsInRegion function of the geneview
 function getPatients(start, stop){
 	/**This function calls the getPatientsInRegion function of the genotype view*/
-	 $.getScript('https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/9bf1755f2adb68d269b66c24718d3aa3843f7916/getGenes.js').done(
-        function(){
-        getPatientsInRegion(start, stop, '', putInRegionTable, '#regionResults');
-    });
+    getPatientsInRegion(start, stop, '', putInRegionTable, '#regionResults');
 };
 function putInRegionTable(tableDiv, phenoInfo){
 /**This function puts the information in the table and is used as callback function for 
