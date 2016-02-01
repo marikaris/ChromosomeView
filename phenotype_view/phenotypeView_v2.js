@@ -1,5 +1,7 @@
 //this array will be filled with all genes that are in the affected region of the patients
 var geneArray = [];
+//this array has every selected symptom in it and a list with all patients having the symptom
+var symptomMatches = {};
 //this array contains the selection of the patients that should be shown
 var checkedPatients = [];
 function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
@@ -137,6 +139,8 @@ function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 				$('#duplication').sortable();
 			});
 			//If the selected_patient is undefined, the phenotype page is not reached from a patient, so the patient cannot be selected
+			/*This little piece of code makes it possible to highlight a patient, could be used when the phenotype is entered by clicking
+			on a phenotype in the patient view, this was not implemented for now, but it can be*/
 			if(selected_patient !='undefined'){
 				//Highlight the patient
 				$('#bar_id'+selected_patient).addClass('highlight');
@@ -684,47 +688,59 @@ function checkPatients(patient, symptoms, callback){
 	matches = 0;
 	$.each(patient, function(question, answer){
 		$.each(symptoms, function(index, symptom){
+			if(symptomMatches[symptom] === undefined){
+				symptomMatches[symptom]= [];
+			}
 			//if the question is equal to the symptom, it can be a boolean or boolean like categorical
 			if(question===symptom){
 				//here process booleans, yesno etc
 				//when boolean true and abnormality of the bodyheight is not the question, then match (this is abnormal)
 				if(answer === true && question !=='Abnormality_of_body_height'){
 					matches += 1;
+					symptomMatches[symptom].push(patient['ownerUsername']);
 				// if the type is object and the answer is not an array: yes/no etc. answers	
 				}else if(typeof answer === 'object' && Array.isArray(answer)===false){
 					//with yesnonotyet No is abnormal
 					if(answer['_href'].indexOf('yesnonotyet') >= 0){
 						if(answer['label']==='No'){
 							matches += 1;
+							symptomMatches[symptom].push(patient['ownerUsername']);
 						}
 					// this one is inversed (no is abnormal)
 					}else if(question === 'Anosmia' || question === 'puberty'){
 						if(answer['label']==='No'){
 							matches += 1;
+							symptomMatches[symptom].push(patient['ownerUsername']);
 						}
 					//cannot are usually abnormal (= match)
 					}else if(answer['label']==='Yes' || answer['label']==='Cannot'){
 						matches += 1;
+						symptomMatches[symptom].push(patient['ownerUsername']);
 					}
 				//this one is inversed (false is match) 
 				}else if(question === 'Abnormality_of_body_height' && answer === false){
 					matches += 1;
+					symptomMatches[symptom].push(patient['ownerUsername']);
 				//when the answer is an array and there are values in it, there is a match
 				}else if(Array.isArray(answer) && answer.length > 0){
 					matches +=1;
+					symptomMatches[symptom].push(patient['ownerUsername']);
 				}
 			//when the answer is the symptom, its a match
 			}else if(answer === symptom){
 				matches += 1;
+				symptomMatches[symptom].push(patient['ownerUsername']);
 			// if the answer is an object and not undefined or array, check if the answer HPO term or label is the symptom	
 			}else if(typeof answer === 'object' && answer != undefined && Array.isArray(answer) === false){
 				if(answer['HPO'] !== undefined && answer['HPO'].length !== 1){
 					if(answer['HPO']===symptom){
 						matches += 1;
+						symptomMatches[symptom].push(patient['ownerUsername']);
 					}
 				}else{
 					if(answer['label']===symptom){
 						matches += 1;
+						symptomMatches[symptom].push(patient['ownerUsername']);
 					}
 				}
 			/* if the answer is an array with length one (this check is done to make 1 symptom
@@ -735,10 +751,12 @@ function checkPatients(patient, symptoms, callback){
 				if(answer[0]['HPO'] !== undefined){
 					if(answer[0]['HPO']===symptom){
 						matches += 1;
+						symptomMatches[symptom].push(patient['ownerUsername']);
 					}
 				}else{
 					if(answer[0]['label']===symptom){
 						matches += 1;
+						symptomMatches[symptom].push(patient['ownerUsername']);
 					}
 				}
 			/*check for each value in an array with length > 1 if the values HPO or label is 
@@ -749,10 +767,12 @@ function checkPatients(patient, symptoms, callback){
 					if(answerPart['HPO'] !== undefined){
 						if(answerPart['HPO']===symptom){
 							matches += 1;
+							symptomMatches[symptom].push(patient['ownerUsername']);
 						}
 					}else{
 						if(answerPart['label']===symptom){
 							matches += 1;
+							symptomMatches[symptom].push(patient['ownerUsername']);
 						}
 					}
 				});
@@ -841,6 +861,7 @@ function getPatientAberrations(startList, stopList, mutations){
 	return aberrations;
 };
 function getPatientsWholePhenotype(patient){
+/**This function creates a popup which is draggable and resizable, in which the phenotype of each patient is shown*/
 	tableDiv= '#patient-table-'+patient;
 	if($('#dialog_'+patient)[0] === undefined){
 		$('#patient_pheno_information').append('<div id="dialog_'+patient+'" title="'+patient+'" class="ui-widget-content my_dialog">'+
