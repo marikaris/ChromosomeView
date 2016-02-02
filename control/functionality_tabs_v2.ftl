@@ -167,7 +167,7 @@
         $("#show_chr6").css('display', 'inline');
     });
     <#--This piece of code makes the phenotype view view-->
-    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/80da099578ae535b68e5726ed81ec068b2882e40/phenotypeViewer_v2.js', function(){
+    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/11a3975928cf0fe7a7e94731aef1b19332dde4a1/phenotypeViewer_v2.js', function(){
     	getPhenotypes('http://localhost:8080/api/v2/chromosome6_a_c');
    	 	getPhenotypes('http://localhost:8080/api/v2/chromome6_d_h');
     	getPhenotypes('http://localhost:8080/api/v2/chromome6_i_L');

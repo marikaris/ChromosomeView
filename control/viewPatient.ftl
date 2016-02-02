@@ -37,7 +37,7 @@ $('head').append(pdfMaker);
 var ownerUsername = '${entity.getString("ownerUsername")!?html}';
 <#--This is needed because this script should be ready on load and when appended to header, it cannot be made sure that the script is loaded-->
 $.getScript('https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/e6eff40d9a35ad67723e4bcc1c7e3deb13e85d4a/patient_data_view.js').done(function(){
-	$.getScript('https://rawgit.com/marikaris/845fe9c278035feb64df/raw/55b2bee9ea071ca028c7107db059f8c6255fd760/processQuestionnaireData_v2.js').done(function(){
+	$.getScript('https://rawgit.com/marikaris/845fe9c278035feb64df/raw/bff536d3ad8c6862f7f505b64f84f7e55cc3facd/processQuestionnaireData_v2.js').done(function(){
 		setNewTableDiv('#patient-table-entityReport');
 		getPatientInfo(ownerUsername, '#patient-report-data', 'search_through_report_table', 'patient-table-entityReport', 'patient_report_chromosome');
 	});

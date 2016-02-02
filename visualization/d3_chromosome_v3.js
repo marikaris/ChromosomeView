@@ -524,7 +524,7 @@ var chromoChart = function () {
 		have more than one mutation on the same chromosome. It cannot be called by a user, 
 		but is used by the function makeBar. */
 		//Save variables.
-		var size = stop - start;	
+		var size = stop - start;
 		//Put a bar over the previous bar that is colored and defines the mutation
 		bar.append("rect").attr("width", bp*size).attr("height", barHeight - 1)
 			.attr("x", bp*start).attr("id", id+mutationNr);

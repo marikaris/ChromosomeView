@@ -2,6 +2,8 @@
 var geneArray = [];
 //this array has every selected symptom in it and a list with all patients having the symptom
 var symptomMatches = {};
+//save the aberrations per patient, to work with in the table
+var patientAberrations = {};
 //this array contains the selection of the patients that should be shown
 var checkedPatients = [];
 function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
@@ -35,12 +37,16 @@ function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 									'<span id="selected-start">0</span>'+
 									'<span>...</span>'+
 									'<span id="selected-stop">0</span>'+
-								'</div><br/>'+	
+								'</div><br/>'+
+								'<button id="makeTableOfPhenotypes" class="pull-right">'+
+									'<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>'+
+									' Download result table'+
+								'</button>'+  	
 								'<div class="btn-group btn-group-xs" role="group">'+
 									'<button id="searchPhenoRegion" class="btn btn-default">Only show patients in this region</button>'+
 									'<button id="hideDel" class="btn btn-default">Hide deletions</button>'+
 									'<button id="hideDup" class="btn btn-default">Hide duplications</button>'+
-								'</div>'+	              					
+								'</div>'+	
                 				'<div id="deletion"></div><div id="duplication"></div>'+
                 			'</div>');
 	/* The deletions and duplications are shown in different lists to make them group (duplications and triplications
@@ -65,6 +71,7 @@ function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 		var stops = patient['stop'];
 		var mutations = patient['mutation'];
 		var aberrations = getPatientAberrations(starts, stops, mutations);
+		patientAberrations[id] = aberrations;
 		var patientObj = {'id': id, 'mutations':aberrations};
 		$.each(mutations, function(mutation_index, mutation){
 			//Because deletions and duplications most of the time show completely different phenotypes, they should be shown seperately
@@ -87,7 +94,7 @@ function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 		});
 	});
 	//Get the library	
-	$.getScript('https://rawgit.com/marikaris/38ff780bc7de041581d9/raw/c006b03276eaa9d9118f6ddcf9a751115d2fbe36/chromoChart_v3.js', function()
+	$.getScript('https://rawgit.com/marikaris/38ff780bc7de041581d9/raw/152d2180b1948fb767c471e48ae39a063af4ce14/chromoChart_v3.js', function()
 	{	//The width of the bars in this view should be 75% of the screen width. 
 		width = $(window).width()*0.5;
 		//Call the function that makes the x axis (the 6th chromosome) from the library
@@ -227,6 +234,9 @@ function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
     });
     $('#hideDup').click(function(){
         hideDelDup('duplication');
+    });
+    $('#makeTableOfPhenotypes').click(function(){
+    	createPhenotypeTable('#phenoTable');
     });
 };
 function selectPatientsInRegion(start, stop){
@@ -403,7 +413,11 @@ function addPatients(selectedPhenotype, patients, resultDiv){
 											'</div>'+
 										'</div>'+
 										'<div class="row" id="row">'+
-											'<div class="col-md-12" id="info">'+
+											'<div class="col-md-12" id="info">'+   					
+											'</div>'+
+										'</div>'+
+										'<div class="row">'+
+											'<div class="col-md-12" id="phenoTable" style="display:none">'+   					
 											'</div>'+
 										'</div>');
 	//Add a loading bar to the place where the bars will be
@@ -525,6 +539,7 @@ function getSymptoms(selectedSymptoms){
 * Then the checkQuestionnaireData is called to process the selected symptoms. 
 */
 	var symptomList = [];
+	symptomMatches = {};
 	geneArray = [];
 	/* This object is resolved when the symptomList is filled completely and can be returned
 	* (when the length of the symptomList is the same as the length of the selected symptoms)
@@ -729,7 +744,9 @@ function checkPatients(patient, symptoms, callback){
 			//when the answer is the symptom, its a match
 			}else if(answer === symptom){
 				matches += 1;
-				symptomMatches[symptom].push(patient['ownerUsername']);
+				if($.inArray(patient['ownerUsername'], symptomMatches[symptom]) === -1){
+					symptomMatches[symptom].push(patient['ownerUsername']);
+				};
 			// if the answer is an object and not undefined or array, check if the answer HPO term or label is the symptom	
 			}else if(typeof answer === 'object' && answer != undefined && Array.isArray(answer) === false){
 				if(answer['HPO'] !== undefined && answer['HPO'].length !== 1){
@@ -740,7 +757,9 @@ function checkPatients(patient, symptoms, callback){
 				}else{
 					if(answer['label']===symptom){
 						matches += 1;
-						symptomMatches[symptom].push(patient['ownerUsername']);
+						if($.inArray(patient['ownerUsername'], symptomMatches[symptom]) === -1){
+							symptomMatches[symptom].push(patient['ownerUsername']);
+						};
 					}
 				}
 			/* if the answer is an array with length one (this check is done to make 1 symptom
@@ -840,7 +859,8 @@ function resetTable(){
 /** This function makes the gene table empty.*/
 	//Add the table structure to the page
     $("#info").html('<br/><br/><div class="table-responsive"><table class = "table table-hover" id="gene_table"><thead>'+
-    			    '<th>Gene</th><th>Position</th><th>Number of patients</th><th>Literature</th><th></th></thead><tbody id="table_body"></tbody></table></div>');
+    			    '<th>Gene</th><th>Position</th><th>Number of patients</th><th>Literature</th><th></th></thead>'+
+    			    '<tbody id="table_body"></tbody></table></div>');
 };
 function emptyChecked(){
 /** This function makes the checked patients empty (when search button is pressed)*/
@@ -869,11 +889,98 @@ function getPatientsWholePhenotype(patient){
 										'<h4>'+patient+'</h4>'+
   										'<div id="patient-wholeDiv-'+patient+'" class="pheno_patient_table_div"></div>'+
 										'</div>');
+  		//call the function from the patient view script
   		getPatientInfo(patient, '#patient-wholeDiv-'+patient, 'search_through_'+patient, 'patient-table-'+patient, patient+'_report_chromosome', false);
+  		//make the dialog draggable and resizable
   		$(function() {
     		$( '#dialog_'+patient).draggable().resizable({alsoResize: '#patient-table-'+patient, maxHeight:'50vh', minHeight: '10vh'});
   		});
+  		//make the table resizable
   		$('#patient-table-'+patient).resizable({containment: '#dialog_'+patient, maxHeight:'50vh', minHeight: '10vh'});
 	}else{$('#dialog_'+patient).css('display', 'block')};
 	
+};
+function createPhenotypeTable(div){
+/**This function creates a table with per patient which phenotype is present*/
+	//sort the arrays within the object, based on start location of the patients
+	var patients = [];
+	var symptoms = Object.keys(symptomMatches);
+	$.each(symptomMatches, function(symptom, array){
+		//make a list of all unique patient, to sort later
+		$.each(array, function(i, patient){
+			if($.inArray(patient, patients) === -1){
+				patients.push(patient);
+			}
+		});
+		//sort the list
+		patients.sort(function(patient1, patient2){
+				return molgenis.naturalSort(patientAberrations[patient1][0][0], patientAberrations[patient2][0][0]);
+			});
+	});
+	//create a table
+	var table = '<table class="table table-hover"><thead><tr id="symptomHead"><th>Patient</th><th>Abberration</th></tr></thead><tbody id="phenoBody"></tbody></table>';
+	//put the table in a hidden div 
+	$(div).html(table);
+	//fill the table with patients
+	$.each(patients, function(i, patient){
+		$('#phenoBody').append('<tr id="patient-'+patient+'"><td>'+patient+'</td><td>'+
+		patientAberrations[patient]+'</td><td class="'+symptoms.join('"></td><td class="')+'"></td></tr>');
+	});
+	//mark which symptoms the patients have in the table
+	$.each(symptomMatches, function(symptom, array){
+		$('#symptomHead').append('<th id="'+symptom+'">'+symptom+'</th>');
+		$.each(array, function(arrayIndex, patient){
+			$('#patient-'+patient+' .'+symptom).html('X');
+		});
+	});
+	//download the table as csv file
+	exportPhenoTable(div, 'phenotypeData.csv');
+	//show the table (a copy) in a new tab, with the molgenis header, to have the nice bootstrap view
+	var myWindow = window.open('','_blank');
+	var doc = myWindow.document;
+	doc.open();
+	doc.write($('head').html());
+	doc.write($(div).html());
+	doc.close();
+};
+function exportPhenoTable(tableDiv, filename){
+/**This function creates a csv file from the given div with phenotypic information of patients in the phenotype view*/
+	//get the head elements of the head of the table with phenotypic info
+	var head = $(tableDiv+' table thead th');
+	//get the rows body
+	var body = $(tableDiv+' table tbody tr');
+	//make the csv file as string
+	var csvTable = 'data:text/csv;charset=utf-8,';
+	//put the head elements in the csv file as first row (seperated by ;)
+	$.each(head, function(i, th){
+		th = th.innerHTML
+		csvTable+= th+';';
+	});
+	//delete the last ;
+	csvTable = csvTable.substring(0, csvTable.length-1);
+	//put an end of line character on the line
+	csvTable += '\n';
+	//iterate over each row
+	$.each(body, function(i, tr){
+		//put each td of the row in the file (separated by ;)
+		$(tr).find('td').each (function(i, td) {
+ 			 td = td.innerHTML;
+ 			 csvTable+= td+';';
+		}); 
+		//delete the last ;
+		csvTable = csvTable.substring(0, csvTable.length-1);
+		//put an end of line character on the line
+		csvTable += '\n';
+	});
+	//from: http://halistechnology.com/2015/05/28/use-javascript-to-export-your-data-as-csv/
+	//create a download URI for the file
+	var data = encodeURI(csvTable);
+	//make a link
+	var link = document.createElement('a');
+	//add the URI to the link
+	link.setAttribute('href', data);
+	//give the filename to the link
+	link.setAttribute('download', filename);
+	//fire click event (and the download starts)
+	link.click();
 };

@@ -36,7 +36,7 @@ function getGenotype(href, chromosome_div){
 		});
 		//put the genotype in the table
 		putInTable('genotype', genotype, tableDiv);
-		$.getScript('https://rawgit.com/marikaris/38ff780bc7de041581d9/raw/b7d493c31cd7f8c571f30c2c70695c1a3a810bc7/chromoChart_v3.js').done(function(){
+		$.getScript('https://rawgit.com/marikaris/38ff780bc7de041581d9/raw/152d2180b1948fb767c471e48ae39a063af4ce14/chromoChart_v3.js').done(function(){
 			//Call the function that makes the x axis (the 6th chromosome) from the library
 			var chr6size= 170805979;
 			$(chromosome_div).html('<div id="legend"></div><div id="chart"></div>');
@@ -268,7 +268,7 @@ function putInTable(question, answer, table_id){
 	//get the table content
 	var table_content = table.html();
 	//check if the question is not in the table already
-	if(table_content.indexOf('>'+question+'<') ===-1){
+	if(table_content.indexOf('>'+question+'<') === -1){
 		//if not, append to table
 		table.append('<tr><th class="symptom" id = "'+question+'">'+question+'</th><td class="'+question+'">'+answer+'</td></tr>');
 	}else{	//if value in table, and the questions are not gender and birthdate 
