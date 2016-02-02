@@ -64,7 +64,7 @@
   					<label><input type="radio" name="optradio" value="custom">At least <input id ="nrOfSymptoms" type="number"> of the phenotypes</label>
 				</div>
                 <div class="pull-right">
-                    <button id="search_button_phenotype"class="btn btn-default search_button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>Search</button>
+                    <button id="search_button_phenotype" class="btn btn-default search_button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>Search</button>
                 </div>
             </div>
             <div id="ph_result"></div>
@@ -167,7 +167,7 @@
         $("#show_chr6").css('display', 'inline');
     });
     <#--This piece of code makes the phenotype view view-->
-    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/b83cf71a5032d2bfce620b0d8e71ab3a0b94a703/phenotypeViewer_v2.js', function(){
+    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/80da099578ae535b68e5726ed81ec068b2882e40/phenotypeViewer_v2.js', function(){
     	getPhenotypes('http://localhost:8080/api/v2/chromosome6_a_c');
    	 	getPhenotypes('http://localhost:8080/api/v2/chromome6_d_h');
     	getPhenotypes('http://localhost:8080/api/v2/chromome6_i_L');
@@ -230,7 +230,6 @@
         $('#ge_result').css('display', 'inline');
         $('#gene_info').html('');
         if(selected.length !== 0){
-        	console.log(selected);
         	processSelectedGenes(selected);
         }
         $('.selection').mouseenter(function(){
