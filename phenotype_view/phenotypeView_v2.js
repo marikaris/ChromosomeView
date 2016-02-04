@@ -767,7 +767,7 @@ function checkPatients(patient, symptoms, callback){
 			*/
 			//check if the first (and only) answers HPO or label in the array is equal to the symptom. 
 			}else if(Array.isArray(answer) && answer.length === 1){
-				if(answer[0]['HPO'] !== undefined){
+				if(answer[0]['HPO'] !== undefined && answer[0]['HPO'].length > 1){
 					if(answer[0]['HPO']===symptom){
 						matches += 1;
 						symptomMatches[symptom].push(patient['ownerUsername']);
