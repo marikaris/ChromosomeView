@@ -111,7 +111,7 @@
 	$('head').append(loadQuestionnaire);
     var geneView = document.createElement('script');
     geneView.type = 'text/javascript';
-    geneView.src = 'https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/d950d92cc176f2a4b6622945d2818d7aecb0738f/getGenes.js';
+    geneView.src = 'https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/02d1077dcadded7e1b7b18f1a80b5a1314319f0c/getGenes.js';
 	$('head').append(geneView);
 	var patientView = document.createElement('script');
 	patientView.type='text/javascript';
@@ -168,9 +168,9 @@
     });
     <#--This piece of code makes the phenotype view view-->
     $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/3bc99a2b1ca5f5c9131cbef7bd27fc3b473adeea/phenotypeViewer_v2.js', function(){
-    	getPhenotypes('http://localhost:8080/api/v2/chromosome6_a_c');
-   	 	getPhenotypes('http://localhost:8080/api/v2/chromome6_d_h');
-    	getPhenotypes('http://localhost:8080/api/v2/chromome6_i_L');
+    	getPhenotypes('/api/v2/chromosome6_a_c');
+   	 	getPhenotypes('/api/v2/chromome6_d_h');
+    	getPhenotypes('/api/v2/chromome6_i_L');
     	$.get('/api/v2/gender', function(genderInfo){
     		genders = genderInfo['items'];
     		<#--The select2 searchbar will be filled with genders-->

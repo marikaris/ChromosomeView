@@ -41,7 +41,7 @@ function processSelectedGenes(checkedGenes){
 };
 function loadEnsemblInfoOfGene(geneId, resultDiv){
 	/**This function loads the infmation of a gene from ensembl*/
-	$.get('http://rest.ensembl.org/lookup/id/'+geneId+'?content-type=application/json').done(
+	$.get('https://rest.ensembl.org/lookup/id/'+geneId+'?content-type=application/json').done(
         function(geneInfo){
         var name = geneInfo['display_name'];
     	var description = geneInfo['description'];
