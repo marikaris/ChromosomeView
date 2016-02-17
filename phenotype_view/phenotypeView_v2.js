@@ -906,6 +906,7 @@ function createPhenotypeTable(div){
 	var patients = [];
 	var symptoms = Object.keys(symptomMatches);
 	$.each(symptomMatches, function(symptom, array){
+		symptom=symptom.replace(/ /g, '_').replace(/[()]/g, '');
 		//make a list of all unique patient, to sort later
 		$.each(array, function(i, patient){
 			if($.inArray(patient, patients) === -1){
@@ -924,10 +925,13 @@ function createPhenotypeTable(div){
 	//fill the table with patients
 	$.each(patients, function(i, patient){
 		$('#phenoBody').append('<tr id="patient-'+patient+'"><td>'+patient+'</td><td>'+
-		patientAberrations[patient]+'</td><td class="'+symptoms.join('"></td><td class="')+'"></td></tr>');
+		patientAberrations[patient]+'</td><td class="'+
+			symptoms.join('"></td><td class="').replace(/ /g, '_').replace(/[()]/g, '')+
+				'"></td></tr>');
 	});
 	//mark which symptoms the patients have in the table
 	$.each(symptomMatches, function(symptom, array){
+		symptom = symptom.replace(/ /g, '_').replace(/[()]/g, '');
 		$('#symptomHead').append('<th id="'+symptom+'">'+symptom+'</th>');
 		$.each(array, function(arrayIndex, patient){
 			$('#patient-'+patient+' .'+symptom).html('X');

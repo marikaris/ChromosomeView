@@ -40,25 +40,40 @@ function processSelectedGenes(checkedGenes){
     });
 };
 function loadEnsemblInfoOfGene(geneId, resultDiv){
-	/**This function loads the infmation of a gene from ensembl*/
-	$.get('https://rest.ensembl.org/lookup/id/'+geneId+'?content-type=application/json').done(
-        function(geneInfo){
-        var name = geneInfo['display_name'];
-    	var description = geneInfo['description'];
-        if(description===undefined){
-            description ='';
-        }else{
-        	description+='<br/>'
-        }
-        var type = geneInfo['biotype'];
-        var start = geneInfo['start'];
-        var end = geneInfo['end'];
-        $(resultDiv).append('<h4>'+name+'</h4>');
-        $(resultDiv).append('<p>Ensembl: <a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g='+geneId+'" target="_blank">'+geneId+'</a><br/>');
-        $(resultDiv).append('<p>Genetype: '+type+'<br/>');
-        $(resultDiv).append('<p>Position: '+start+'...'+end+'<br/><br/>');
-        $(resultDiv).append(description+'<br/></p>');
-    });
+	/**This function loads the infmation of a gene from ensembl (and if fail, from the molgenis gene table)*/
+	try{
+		$.get('https://rest.ensembl.org/lookup/id/'+geneId+'?content-type=application/json').done(
+	        function(geneInfo){
+   		    var name = geneInfo['display_name'];
+    		var description = geneInfo['description'];
+        	if(description===undefined){
+       	  	  description ='';
+	    	}else{
+    			description+='<br/>'
+    		}
+	        var type = geneInfo['biotype'];
+    		var start = geneInfo['start'];
+    		var end = geneInfo['end'];
+	        $(resultDiv).append('<h4>'+name+'</h4>');
+    		$(resultDiv).append('<p>Ensembl: <a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g='+geneId+'" target="_blank">'+geneId+'</a><br/>');
+    		$(resultDiv).append('Genetype: '+type+'<br/>');
+	        $(resultDiv).append('Position: '+start+'...'+end+'<br/><br/>');
+    		$(resultDiv).append(description+'<br/></p>');
+    		})
+    		.fail(
+    		function(){
+    		$.get('/api/v2/genes/'+geneId).done(function(geneInfo){
+	    		var name = geneInfo['gene_name'];
+    			var start = geneInfo['start'];
+   	 			var stop = geneInfo['stop'];
+				$(resultDiv).append('<h4>'+name+'</h4>');
+	        	$(resultDiv).append('<p>Ensembl: '+geneId+'<br/>');
+    	    	$(resultDiv).append('Position: '+start+'...'+stop+'<br/><br/></p>');
+    		});
+    	});
+    }catch(err){
+    	
+    }
 }
 function getGeneRegion(geneId, callbackFunction){
 	/**this function extracts the start and stop location of a gene, given the api id of the gene.

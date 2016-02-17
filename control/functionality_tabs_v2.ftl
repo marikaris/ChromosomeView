@@ -17,8 +17,8 @@
             <li class="selection" id="phenotypeView"><a href="#">Phenotype view</a></li>
             <li role="separator" class="divider"></li>
             <li class="selection" id="geneView"><a href="#">Gene view</a></li>
-            <li role="separator" class="divider"></li>
-            <li class="selection" id="regionView"><a href="#">Select region on chromosome</a></li>
+            <#--<li role="separator" class="divider"></li>-->
+            <#--<li class="selection" id="regionView"><a href="#">Select region on chromosome</a></li>-->
             <li role="separator" class="divider"></li>
             <li class="selection" id="chr6_map"><a href="#">Chromosome 6</a></li>
           </ul>
@@ -111,7 +111,7 @@
 	$('head').append(loadQuestionnaire);
     var geneView = document.createElement('script');
     geneView.type = 'text/javascript';
-    geneView.src = 'https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/02d1077dcadded7e1b7b18f1a80b5a1314319f0c/getGenes.js';
+    geneView.src = 'https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/c7d46949b2f5f56bd37f22d76034250d32c6fe72/getGenes.js';
 	$('head').append(geneView);
 	var patientView = document.createElement('script');
 	patientView.type='text/javascript';
@@ -167,7 +167,7 @@
         $("#show_chr6").css('display', 'inline');
     });
     <#--This piece of code makes the phenotype view view-->
-    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/3bc99a2b1ca5f5c9131cbef7bd27fc3b473adeea/phenotypeViewer_v2.js', function(){
+    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/f35bf90874178d77488a2b8ccf5e9b2d903676dc/phenotypeViewer_v2.js', function(){
     	getPhenotypes('/api/v2/chromosome6_a_c');
    	 	getPhenotypes('/api/v2/chromome6_d_h');
     	getPhenotypes('/api/v2/chromome6_i_L');
