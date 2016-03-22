@@ -1,0 +1,5 @@
+library(qtl)
+large_data <- read.cross("csvr", "https://rawgit.com/marikaris/6f494c2c7b7c017dccbc/raw/6a75a18aa513e616f158b4ce04dec9d3e9d47b6d/", 'test_data.csv',  header=TRUE)
+large_data <- calc.genoprob(large_data)
+pheno.data_hj <- scanone(large_data, chr=6, pheno.col=which(colnames(large_data$pheno)=="${symptom}"), model = "binary")
+print(max(pheno.data_hj)$lod)

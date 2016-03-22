@@ -97,26 +97,39 @@
             <div id="regionResults"></div>
         </div>
         <div id="show_chr6" >
-        	<h4>Chromosome 6</h4>
-        	<div id="target_chr6_plot"></div>
+        	<h4>Chromosome 6 QTL plots</h4>
+        	<select class="selectQtlSymptom" id="qtlSymptomSelection">
+        	</select>
+        	<button id='mooiKnopje' class="btn btn-default">Generate QTL plot</button>
+        	<div id="qtlplot"></div>
+        	<div id="target_chr6_plot" style='display:none'></div>
+        	<div id="significantLod" style='display:none'>
+        		<div id="alpha-error">Error: Alpha should be between 0 and 1</div>
+        		Alpha: <input type ="number" value = "alpha" id="alpha-value">
+        		<button id="calcSigLod">Calculate significant lodscore threshold</button>
+        		<br/><br/>
+        		<p id ="calculatedThreshold"></p>
+        		<div id="geneInfoQtl"></div>
+        	</div>
         </div>
     </div>
 </div>
 <script>
     <#--Appends the css styling and javascript files to the head of the page.-->
-	$('head').append('<link rel="stylesheet" href="https://rawgit.com/marikaris/48db231276313d25723d/raw/f0e96c01e98397a82a7f970f58b215f577707066/chr_style.css" type="text/css">');
+	$('head').append('<link rel="stylesheet" href="/css/styling-chr6/chr6_style.css" type="text/css"/>');
 	var loadQuestionnaire = document.createElement('script');
 	loadQuestionnaire.type = 'text/javascript';
-	loadQuestionnaire.src = 'https://rawgit.com/marikaris/845fe9c278035feb64df/raw/55b2bee9ea071ca028c7107db059f8c6255fd760/processQuestionnaireData_v2.js';
+	loadQuestionnaire.src = '/js/js-chr6/questionnaire_processing/processQuestionnaire.js';
 	$('head').append(loadQuestionnaire);
     var geneView = document.createElement('script');
     geneView.type = 'text/javascript';
-    geneView.src = 'https://rawgit.com/marikaris/c3c30499b070fa5a19ad/raw/c7d46949b2f5f56bd37f22d76034250d32c6fe72/getGenes.js';
+    geneView.src = '/js/js-chr6/researchViews/geneView.js';
 	$('head').append(geneView);
 	var patientView = document.createElement('script');
 	patientView.type='text/javascript';
-	patientView.src = 'https://rawgit.com/marikaris/8b2afbf48ab58949661e/raw/e6eff40d9a35ad67723e4bcc1c7e3deb13e85d4a/patient_data_view.js';
+	patientView.src = '/js/js-chr6/researchViews/patientView.js';
 	$('head').append(patientView);
+	
     var url='/api/v2/patients';
     
     $("#tagPicker_phenotype").select2({
@@ -160,6 +173,7 @@
         $("#show_chr6").css('display', 'none');
     });
     $('#chr6_map').click(function(){
+    	$('input[type=radio]', '.cutOff')[0].checked = true;
         $("#showPheno").css('display', 'none');
         $("#showGene").css('display', 'none');
         $("#showRegion").css('display', 'none');
@@ -167,21 +181,21 @@
         $("#show_chr6").css('display', 'inline');
     });
     <#--This piece of code makes the phenotype view view-->
-    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/f35bf90874178d77488a2b8ccf5e9b2d903676dc/phenotypeViewer_v2.js', function(){
-    	getPhenotypes('/api/v2/chromosome6_a_c');
-   	 	getPhenotypes('/api/v2/chromome6_d_h');
-    	getPhenotypes('/api/v2/chromome6_i_L');
+    $.getScript('/js/js-chr6/researchViews/phenotypeView.js', function(){
+    	getPhenotypes('/api/v2/chromosome6_a_c', '#tagPicker_phenotype');
+   	 	getPhenotypes('/api/v2/chromome6_d_h', '#tagPicker_phenotype');
+    	getPhenotypes('/api/v2/chromome6_i_L', '#tagPicker_phenotype');
     	$.get('/api/v2/gender', function(genderInfo){
     		genders = genderInfo['items'];
     		<#--The select2 searchbar will be filled with genders-->
     		$.each(genders, function(index, gender){
-    			addToSearch('gender: '+gender['label']);
+    			addToSearch('gender: '+gender['label'], '#tagPicker_phenotype');
     		});
    		 });
     	$('#search_button_phenotype').on('click', function(){
     		emptyChecked();
     		var selected = $('#tagPicker_phenotype').select2('data');
-    		getSymptoms(selected);	
+    		getSymptoms(selected, addPatients);	
     	});	
     	$('body').on('click', '.check_span', function(){
     		var patient = $(this).text().replace(' ', '');
@@ -217,7 +231,7 @@
                    geneObj['ensembl_id']+'">'+geneObj['ensembl_id']+': '+geneObj['gene_name']+'</option>');
        });
     });
-    $.get('https://rawgit.com/marikaris/2de02c1caf20d4e52a20/raw/d82a88d1cfed04f730ea2a83bcb4775da901e4a6/gene_content.html').done(
+    $.get('https://gist.githubusercontent.com/marikaris/2de02c1caf20d4e52a20/raw/d82a88d1cfed04f730ea2a83bcb4775da901e4a6/gene_content.html').done(
         function(geneFrame){
             $('#ge_result').html(geneFrame);
         });
@@ -243,16 +257,17 @@
     	});
     });
 </script>
+<#--Disabled because it is slow
 <script>
-	<#--Here the region view is done-->
-    $.getScript('https://rawgit.com/marikaris/280e033da84cc3dfac82/raw/43d0c99a9326499abd55eb362603eccf516a1f2e/regionView.js').done(function(){
+	Here the region view is done
+    $.getScript('/js/js-chr6/reseachViews/regionView.js').done(function(){
     	makeSelect('#chromosome_bar', '#posX-1', '#posX-2', '#draggable1', '#draggable2', '#bar');
    		$('#selectRegion').on('click', function(){
    			$('#regionResults').html('<br/>Loading...');
    			getPatients($('#posX-1').val(), $('#posX-2').val());
    		});
     });
-</script>
+</script>-->
 <script>
 <#---This part makes the patient view available-->
 	$('#patientView').click(function(){
@@ -288,9 +303,43 @@
 	});
 </script>
 <script>
-	$.getScript('https://rawgit.com/linjoey/cyto-chromosome-vis/master/cyto-chromosome.js').done(function(){
-		cyto_chr.modelLoader.setDataDir('https://raw.githubusercontent.com/linjoey/cyto-chromosome-vis/master/data/');
-		var chromosomeFactory = cyto_chr.chromosome;
-		var chr_6 = chromosomeFactory().segment('6').target('#target_chr6_plot').showAxis(true).render();
+	$.getScript('/js/js-chr6/researchViews/phenotypeView.js', function(){
+		$.getScript('/js/js-chr6/questionnaire_processing/qtlDataCreator.js', function(){
+			fillSearchBar('#qtlSymptomSelection');
+			processGeneData();
+			$('.selectQtlSymptom').select2();
+			var symptom;
+			var threshold;
+			$.getScript('/js/js-chr6/lib/cyto-chromosome/cyto-chromosome.js').done(function(){
+				cyto_chr.modelLoader.setDataDir('https://raw.githubusercontent.com/linjoey/cyto-chromosome-vis/master/data/');
+				var chromosomeFactory = cyto_chr.chromosome;
+				$('#target_chr6_plot').css('margin-left', '4em');
+				var chr_6 = chromosomeFactory().segment('6').target('#target_chr6_plot').showAxis(true).width(1100).render();
+			});
+			$('#mooiKnopje').click(function(){
+				symptom = $('.selectQtlSymptom').select2('data');
+				console.log(symptom);
+				if(symptom !== null){
+					scanPhenotypeData([symptom]);
+					<#--$.getScript('/js/js-chr6/visualisation/plotQtl.js').done(function(){
+						appendToMolgenisHead();
+						$('#significantLod').show();
+						$('#target_chr6_plot').show();
+						plotQtl('#qtlplot', symptom);
+						$('#calculatedThreshold').text('');
+						$('#geneInfoQtl').html('');
+						$('#calcSigLod').unbind().click(function(){
+							alpha = $('#alpha-value').val();
+							if(alpha>0 && alpha <=1){
+								$('#alpha-error').hide();
+								calculateThreshold(alpha, '#calculatedThreshold', symptom, '#geneInfoQtl');
+							}else{
+								$('#alpha-error').show();
+							};
+						});
+					});-->
+				};
+			});
+		});
 	});
 </script>
