@@ -80,7 +80,7 @@ function createQtlFile(symptom){
 						fileContent += 'H';
 					};
 					if(i_gene === genes.length -1 && i_patient === patients.length -1){
-						var url = writeFile(fileContent);
+						var url = writeFile(fileContent, symptom);
 					}else if(i_patient < patients.length-1){
 						fileContent += ',';
 					}else{
@@ -92,18 +92,38 @@ function createQtlFile(symptom){
 	});
 };
 
-function writeFile(content){
+function writeFile(content, symptom){
 	$.get('/scripts/emptyQtlCsvFile/run');
 	content = content.split('\n');
-	console.log(content.slice(0, 20).join('%5Cn'));
+	content = content.slice(1, content.length);
 	total = content.length;
-	var piece = 20;
+	var max_uri_length = 2000 - (location.protocol.length+'//'.length+location.host.length+'/scripts/updateQtlCsvFile/run?fileContent='.length)
+	var rowlength = content[2].length + '%5Cn'.length
+	var piece = Math.floor(max_uri_length/rowlength);
 	function fillFile(i){
-		if(i < content.length+piece){
-			console.log(i);
-			var filepart = content.slice(i, i+20).join('%5Cn');
+		if(i < content.length){
+			var filepart = content.slice(i, i+piece).join('%5Cn');
 			$.get('/scripts/updateQtlCsvFile/run?fileContent='+filepart+'%5Cn').done(function(){
-				i += 20;
+				i += piece;
+				if(i >= content.length){
+					$.getScript('/js/js-chr6/visualisation/plotQtl.js').done(function(){
+						appendToMolgenisHead();
+						$('#significantLod').show();
+						$('#target_chr6_plot').show();
+						plotQtl('#qtlplot', symptom);
+						$('#calculatedThreshold').text('');
+						$('#geneInfoQtl').html('');
+						$('#calcSigLod').unbind().click(function(){
+							alpha = $('#alpha-value').val();
+							if(alpha>0 && alpha <=1){
+								$('#alpha-error').hide();
+								calculateThreshold(alpha, '#calculatedThreshold', symptom, '#geneInfoQtl');
+							}else{
+								$('#alpha-error').show();
+							};
+						});
+					});
+				};
 				fillFile(i);
 			});	
 		};

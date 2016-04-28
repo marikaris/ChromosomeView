@@ -6,6 +6,7 @@ var symptomMatches = {};
 var patientAberrations = {};
 //this array contains the selection of the patients that should be shown
 var checkedPatients = [];
+
 function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
 /**plotBarsOfPatients plots the chromosome bars of the patients
 * The algorithm of the function:
@@ -198,7 +199,7 @@ function plotBarsOfPatients(patients, figure_div, chr6size, selected_patient){
             	*/
         		if($(this).offset().left === $('#chromosome').offset().left){
             		$('#selected-start').text(0);
-                };
+                }
             }
         });
         $('#draggablePheno2').draggable({
@@ -467,7 +468,7 @@ function addPatients(selectedPhenotype, patients, resultDiv){
 function getPhenotypes(questionnaire_url, div){
 /** getPhenotypes gets the phenotypes of the patients of one questionnaire part
 * The url is the url to the molgenis v2 api page of the questionnaire part. It is accessed and the data is processed. 
-*/
+*/	
 	$.get(questionnaire_url).done(function(data){
   		var genoAttrs = data['meta']['attributes'];
        	$.each(genoAttrs, function(i, geno){
@@ -547,7 +548,24 @@ function getSymptoms(selectedSymptoms, callback){
 	var wait = $.Deferred();
 	$.each(selectedSymptoms, function(i, symptom){
 		var symptom = symptom.text;
-		if(symptom.indexOf(':') >=0){
+		if(symptom ==='BMI > 30'){
+			symptomMatches.obesity = [];
+			symptomList.push('obesity');
+			getFatties('obesity');
+		}else if(symptom ==='BMI > 25'){
+			symptomMatches.overweight = [];
+			symptomList.push('overweight');
+			getFatties('overweight');
+		}else if(symptom === 'Loose connective tissue'){
+			symptomList.push('hypermobility_joints');
+			symptomList.push('pes_planus');
+			symptomList.push('positional_foot_deformity');
+			symptomList.push('Umbilical_hernia');
+			symptomList.push('inguinal_hernia');
+			symptomList.push('Abnormality_of_the_thorax');
+			symptomList.push('Loose_connective_tissue');
+			symptomMatches.Loose_connective_tissue = [];
+		}else if(symptom.indexOf(':') >=0){
 			var refAndPheno = symptom.split(': ');
 			var ref = refAndPheno[0];
 			var phenotype = refAndPheno[1];
@@ -575,7 +593,7 @@ function getSymptoms(selectedSymptoms, callback){
 		}else{
 			symptomList.push(symptom);
 		}
-		if(selectedSymptoms.length === symptomList.length){
+		if(selectedSymptoms.length === symptomList.length || selectedSymptoms.length + 6 === symptomList.length ){
 			wait.resolve();
 		}
 	});
@@ -606,13 +624,19 @@ function checkQuestionnaireData(symptomList, cutOffClass, inputDiv, callbackFunc
 				cutOff = parseInt(custom_value) + 2;
 			}else{
 				cutOff = custom_value;
-			}				
+			}	
+			if($.inArray('Loose_connective_tissue', symptomList) >-1){
+				cutOff -= 6;
+			}
 		}else{
 			// when the custom value is higher than the length of the symptomlist, the max value is set as cutoff
 			if($.inArray('Male', symptomList)>-1|$.inArray('Female', symptomList)>-1){
 				cutOff = symptomList.length + 2;
 			}else{
 				cutOff = symptomList.length;
+			}
+			if($.inArray('Loose_connective_tissue', symptomList) >-1){
+				cutOff -= 6;
 			}
 		}
 	}else{
@@ -623,6 +647,9 @@ function checkQuestionnaireData(symptomList, cutOffClass, inputDiv, callbackFunc
 			cutOff = symptomList.length + 2;
 		}else{
 			cutOff = symptomList.length;
+		}
+		if($.inArray('Loose_connective_tissue', symptomList) >-1){
+			cutOff -= 6;
 		}
 	}
 	//here the answers of the questionnaire parts are gathered
@@ -667,6 +694,33 @@ function checkQuestionnaireData(symptomList, cutOffClass, inputDiv, callbackFunc
 							var patients = arrayData['items'];
 							$.each(patients, function(patient_index, patient){
 								name = patient['ownerUsername'];
+								if($.inArray(name, symptomMatches.obesity) > -1){
+									matchCount[name] += 1;
+								}
+								if($.inArray(name, symptomMatches.overweight) > -1){
+									matchCount[name] += 1;
+								}
+								if(symptomMatches.Loose_connective_tissue !== undefined){
+									if($.inArray(name, symptomMatches.hypermobility_joints) > -1){
+										matchCount[name] += 1;
+										symptomMatches.Loose_connective_tissue.push(name);
+									}else if($.inArray(name, symptomMatches.pes_planus) > -1){
+										matchCount[name] += 1;
+										symptomMatches.Loose_connective_tissue.push(name);
+									}else if($.inArray(name, symptomMatches.positional_foot_deformity) > -1){
+										matchCount[name] += 1;
+										symptomMatches.Loose_connective_tissue.push(name);
+									}else if($.inArray(name, symptomMatches.Umbilical_hernia) > -1){
+										matchCount[name] += 1;
+										symptomMatches.Loose_connective_tissue.push(name);
+									}else if($.inArray(name, symptomMatches.inguinal_hernia) > -1){
+										matchCount[name] += 1;
+										symptomMatches.Loose_connective_tissue.push(name);
+									}else if($.inArray(name, symptomMatches.Abnormality_of_the_thorax) > -1){
+										matchCount[name] += 1;
+										symptomMatches.Loose_connective_tissue.push(name);
+									}
+								}
 								//check for each patient if he or she has enough matches with the selected symptoms
 								if(matchCount[name] >= cutOff){
 									if(name in patientPositions){
@@ -707,7 +761,8 @@ function checkPatients(patient, symptoms, callback){
 				symptomMatches[symptom]= [];
 			}
 			//if the question is equal to the symptom, it can be a boolean or boolean like categorical
-			if(question===symptom){
+			if(symptom === 'obesity'|symptom === 'overweight'|symptom === 'Loose_connective_tissue'){
+			}if(question===symptom){
 				//here process booleans, yesno etc
 				//when boolean true and abnormality of the bodyheight is not the question, then match (this is abnormal)
 				if(answer === true && question !=='Abnormality_of_body_height'){
@@ -927,10 +982,12 @@ function createPhenotypeTable(div){
 	$(div).html(table);
 	//fill the table with patients
 	$.each(patients, function(i, patient){
-		$('#phenoBody').append('<tr id="patient-'+patient+'"><td>'+patient+'</td><td>'+
+		var row = '<tr id="patient-'+patient+'"><td>'+patient+'</td><td>'+
 		patientAberrations[patient]+'</td><td class="'+
-			symptoms.join('"></td><td class="').replace(/ /g, '_').replace(/[()]/g, '').replace(/<td_class/, '<td class')+
-				'"></td></tr>');
+		symptoms.join('"></td><td class="').replace(/ /g, '_').replace(/[()]/g, '')+
+			'"></td></tr>';
+		row = row.replace(/td_class/g, 'td class');
+		$('#phenoBody').append(row);
 	});
 	//mark which symptoms the patients have in the table
 	$.each(symptomMatches, function(symptom, array){
@@ -990,4 +1047,173 @@ function exportPhenoTable(tableDiv, filename){
 	link.setAttribute('download', filename);
 	//fire click event (and the download starts)
 	link.click();
+};
+function getFatties(type){
+	if(type === 'obesity'){
+		$.get('/api/v2/chromome6_i_L?attrs=ownerusername&q=comments=q=hasobesity').done(function(patientsWithObesity){
+			var items = patientsWithObesity.items;
+			$.each(items, function(i, patient){
+				symptomMatches.obesity.push(patient.ownerUsername);
+			});
+		});
+	}else if(type === 'overweight'){
+		$.get('/api/v2/chromome6_i_L?attrs=ownerusername&q=comments=q=hasobesity,comments=q=hasoverweight').done(function(patientsWithOverweight){
+			var items = patientsWithOverweight.items;
+			$.each(items, function(i, patient){
+				symptomMatches.overweight.push(patient.ownerUsername);
+			});
+		});
+	};	
+	$.get('/api/v2/chromosome6_a_c').done(function(data){
+		var patients = data.items;
+		$.each(patients, function(i, patient){
+			var mDate = patient.measurement_date;
+			var height = patient.height_cm;
+			var weight = patient.weight_kg;
+			if(weight !== undefined && height !== undefined && mDate !== undefined){
+				var bDate = patient.birthdate;
+				var age = calculateAge(bDate, mDate);
+				if (age > 1){
+					var gender = patient.gender.id;
+					var BMI = calculateBMI(height, weight);
+					if(type==='obesity'){
+						var obesity = hasObesity(age, gender, BMI);
+						if(obesity){
+							symptomMatches.obesity.push(patient.ownerUsername);
+						}
+					}else if(type === 'overweight'){
+						var overweight = hasOverweight(age, gender, BMI);
+						if(overweight){
+							symptomMatches.overweight.push(patient.ownerUsername)
+						}
+					};
+				};
+			};
+		});
+	});
+};
+function calculateAge(bDate, mDate){
+	bDate = bDate.split('-');
+	var bYear = bDate[0];
+	var bMonth = bDate[1];
+	var bDay = bDate[2];
+	mDate = mDate.split('-');
+	var mYear = mDate[0];
+	var mMonth = mDate[1];
+	var mDay = mDate[2];
+	var age = mYear-bYear;
+	if(mMonth-bMonth < 0){
+		age -= 1;
+	}else if(mMonth-bMonth === 0){
+		if(mDay - bDay < 0){
+			age -= 1;
+		};
+	};
+	return age;
+};
+function calculateBMI(height, weight){
+	height = height/100
+	return weight/(height*height);
+};
+function hasObesity(age, gender, BMI){
+	var obesityThreshold;
+	if(age < 18){
+		var obesityVals = {
+				'm':{
+					'2':19.81,
+					'3':19.36,
+					'4':19.15,
+					'5':19.17,
+					'6':19.65,
+					'7':20.51,
+					'8':21.57,
+					'9':22.81,
+					'10':24.11,
+					'11':25.42,
+					'12':26.67,
+					'13':27.76,
+					'14':28.57,
+					'15':29.11,
+					'16':29.43,
+					'17':29.69
+				}, 'f':{
+					'2':20.09,
+					'3':19.57,
+					'4':19.29,
+					'5':19.30,
+					'6':19.78,
+					'7':20.63,
+					'8':21.60,
+					'9':22.77,
+					'10':24.0,
+					'11':25.10,
+					'12':26.02,
+					'13':26.84,
+					'14':27.63,
+					'15':28.30,
+					'16':28.88,
+					'17':29.41	
+				}
+			};
+		obesityThreshold = obesityVals[gender][age];
+		
+	}else{
+		obesityThreshold = 30;
+	};
+	if(BMI < obesityThreshold){
+		return false;
+	}else{
+		return true;
+	};
+};
+function hasOverweight(age, gender, BMI){
+	var owThreshold;
+	if(age < 18){
+		var owVals = {
+				'm':{
+					'2':18.41,
+					'3':17.89,
+					'4':17.55,
+					'5':17.42,
+					'6':17.55,
+					'7':17.92,
+					'8':18.44,
+					'9':19.10,
+					'10':19.84,
+					'11':20.55,
+					'12':21.22,
+					'13':21.91,
+					'14':22.62,
+					'15':23.29,
+					'16':23.90,
+					'17':24.46
+				}, 'f':{
+					'2':18.02,
+					'3':17.56,
+					'4':17.28,
+					'5':17.15,
+					'6':17.34,
+					'7':17.75,
+					'8':18.35,
+					'9':19.07,
+					'10':19.86,
+					'11':20.74,
+					'12':21.68,
+					'13':22.58,
+					'14':23.34,
+					'15':23.94,
+					'16':24.37,
+					'17':24.70	
+				}
+			};
+		owThreshold = owVals[gender][age];
+		
+	}else{
+		owThreshold = 25;
+	};
+	if(BMI < owThreshold){
+		return false;
+	}else{
+		return true;
+	};
 };

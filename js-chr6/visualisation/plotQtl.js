@@ -30,12 +30,12 @@ function extractBodyFromHTML(wholeHTML){
 }
 function appendToMolgenisHead(){
 /**This function puts the functionality to plot qtl information (generated using R) in d3 in the head*/
-	appendDocElementToHead('../lib/qtlcharts/index-min.js');
-	$('head').append('<link href="../../../../css/styling-chr6/lib/qtlcharts/d3panels.min.css" rel="stylesheet" />');
-	appendDocElementToHead('../lib/qtlcharts/d3panels.min.js');
-	appendDocElementToHead('../lib/qtlcharts/iplotScanone_noeff.js');
-	appendDocElementToHead('../lib/qtlcharts/iplotScanone_ci.js');
-	appendDocElementToHead('../lib/qtlcharts/iplotScanone_pxg.js');
+	appendDocElementToHead('/js/js-chr6/lib/qtlcharts/index-min.js');
+	$('head').append('<link href="/css/styling-chr6/lib/d3panels.min.css" rel="stylesheet" />');
+	appendDocElementToHead('/js/js-chr6/lib/qtlcharts/d3panels.min.js');
+	appendDocElementToHead('/js/js-chr6/lib/qtlcharts/iplotScanone_noeff.js');
+	appendDocElementToHead('/js/js-chr6/lib/qtlcharts/iplotScanone_ci.js');
+	appendDocElementToHead('/js/js-chr6/lib/qtlcharts/iplotScanone_pxg.js');
 };
 function appendDocElementToHead(url){
 /**This function creates a script tag with a given URL and puts it in the head of the webpage, 
@@ -99,7 +99,7 @@ then it puts the threshold in the plot*/
     	var log_threshold = data[1];
     	//first get the max peek, then plot the threshold
     	getMaxQtlPeek(symptom, log_threshold, plotThreshold, thresholdDiv, alpha);
-    	$.getScript('/makeQtlGeneTable.js').done(function(){
+    	$.getScript('/js/js-chr6/researchViews/makeQtlGeneTable.js').done(function(){
 			getGenes(symptom, log_threshold, div);
 		});
 	});

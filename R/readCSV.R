@@ -1,0 +1,1 @@
+read.csv('/Users/mslofstra/.molgenis/rData/qtl_data.csv')

@@ -192,6 +192,9 @@
     			addToSearch('gender: '+gender['label'], '#tagPicker_phenotype');
     		});
    		 });
+   		 addToSearch('BMI > 30',  '#tagPicker_phenotype');
+   		 addToSearch('BMI > 25',  '#tagPicker_phenotype');
+   		 addToSearch('Loose connective tissue',  '#tagPicker_phenotype');
     	$('#search_button_phenotype').on('click', function(){
     		emptyChecked();
     		var selected = $('#tagPicker_phenotype').select2('data');
@@ -306,6 +309,9 @@
 	$.getScript('/js/js-chr6/researchViews/phenotypeView.js', function(){
 		$.getScript('/js/js-chr6/questionnaire_processing/qtlDataCreator.js', function(){
 			fillSearchBar('#qtlSymptomSelection');
+			addToSearch('BMI > 30',  '#qtlSymptomSelection');
+			addToSearch('BMI > 25',  '#qtlSymptomSelection');
+   		 	addToSearch('Loose connective tissue',  '#qtlSymptomSelection');
 			processGeneData();
 			$('.selectQtlSymptom').select2();
 			var symptom;
@@ -318,26 +324,8 @@
 			});
 			$('#mooiKnopje').click(function(){
 				symptom = $('.selectQtlSymptom').select2('data');
-				console.log(symptom);
 				if(symptom !== null){
 					scanPhenotypeData([symptom]);
-					<#--$.getScript('/js/js-chr6/visualisation/plotQtl.js').done(function(){
-						appendToMolgenisHead();
-						$('#significantLod').show();
-						$('#target_chr6_plot').show();
-						plotQtl('#qtlplot', symptom);
-						$('#calculatedThreshold').text('');
-						$('#geneInfoQtl').html('');
-						$('#calcSigLod').unbind().click(function(){
-							alpha = $('#alpha-value').val();
-							if(alpha>0 && alpha <=1){
-								$('#alpha-error').hide();
-								calculateThreshold(alpha, '#calculatedThreshold', symptom, '#geneInfoQtl');
-							}else{
-								$('#alpha-error').show();
-							};
-						});
-					});-->
 				};
 			});
 		});

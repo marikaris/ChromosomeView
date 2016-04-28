@@ -48,22 +48,24 @@ function getGeneInfo(ensembl_id, lodScore, callback){
 		'gwas':gwas_ids, 'ensembl':ensembl_id};
 		var gwas = information['gwas'];
 		var gwasInfo = [];
-		if(gwas.length > 0){
-			$.each(gwas, function(i, gwasId){
-				var id = gwasId['gwas'];
-				getGwasInfo(id, function(gwas_info){
-					if(gwas_info['trait'].split(',').length-1 > 3){gwas_info['trait'] = 'multiple matched traits'};
-					gwasInfo.push(gwas_info);
-					if(i === gwas.length-1){
-						information['gwas'] = gwasInfo;
-						information['lodScore'] = lodScore;
-						callback(information);
-					};
+		if(gwas !== undefined){
+			if(gwas.length > 0){
+				$.each(gwas, function(i, gwasId){
+					var id = gwasId['gwas'];
+					getGwasInfo(id, function(gwas_info){
+						if(gwas_info['trait'].split(',').length-1 > 3){gwas_info['trait'] = 'multiple matched traits'};
+						gwasInfo.push(gwas_info);
+						if(i === gwas.length-1){
+							information['gwas'] = gwasInfo;
+							information['lodScore'] = lodScore;
+							callback(information);
+						};
+					});
 				});
-			});
-		}else{
-			information['lodScore'] = lodScore;
-			callback(information);
+			}else{
+				information['lodScore'] = lodScore;
+				callback(information);
+			};
 		};
 	});
 };
