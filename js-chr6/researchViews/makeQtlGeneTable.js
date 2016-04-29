@@ -11,15 +11,20 @@ function getGenes(symptom, threshold, div){
 				geneInfo = geneInfo.split(/\s+/);
 				var ensembl = geneInfo[0];
 				var lodScore = geneInfo[3];
+				//if the total length of the list is accomplished, go on
 				if(i=== significantGenes.length-1){
 					deferredObj.resolve();
 				};
+				//get the information of the gene
 				getGeneInfo(ensembl, lodScore, function(information){
 					geneInformation.push(information);
+					//when all genes are processed
 					deferredObj.done(function(){
+						//sort the genes on lodscore
 						geneInformation.sort(function(gene1, gene2){
 							return molgenis.naturalSort(gene2.lodScore, gene1.lodScore);
 						});
+						//put the genes in the table
 						putGenesInTable(geneInformation, div);
 					});
 				});
@@ -30,7 +35,7 @@ function getGenes(symptom, threshold, div){
 };
 
 function getGeneInfo(ensembl_id, lodScore, callback){
-/**This function gets the gene information from molgenis, using the REST api*/
+/**This function gets the gene information from the molgenis database, using the REST api*/
 	ajax('/api/v2/genes/'+ensembl_id).then(function(geneData){
 		geneData = JSON.parse(geneData);
 		var name = geneData['gene_name'];
@@ -48,6 +53,7 @@ function getGeneInfo(ensembl_id, lodScore, callback){
 		'gwas':gwas_ids, 'ensembl':ensembl_id};
 		var gwas = information['gwas'];
 		var gwasInfo = [];
+		//process the gwas catalog information (if there is any)
 		if(gwas !== undefined){
 			if(gwas.length > 0){
 				$.each(gwas, function(i, gwasId){
@@ -64,6 +70,7 @@ function getGeneInfo(ensembl_id, lodScore, callback){
 				});
 			}else{
 				information['lodScore'] = lodScore;
+				//now that all gene information is saved in one object, the information can be processed further
 				callback(information);
 			};
 		};
@@ -81,12 +88,13 @@ function getGwasInfo(id, callback){
 };
 
 function putGenesInTable(genes, div){
+	/**This function puts given genes in a table with their information*/
 	$(div).html('<table class="table table-hover"><thead><tr><th>Gene name</th>'+
 				'<th>Start position</th><th>Stop position</th><th>Description</th>'+
 				'<th>Gene type</th><th>OMIM</th><th>CGD</th><th>GWAS catalog</th>'+
-				'<th>Qtl lodscore</th>'+
+				'<th>Patients</th><th>Qtl lodscore</th>'+
 				'</tr></thead><tbody id="significantQtlGeneTable"></tbody></table>');
-	$(div).prepend('<form class="navbar-form navbar-right" role="search">'+
+	$(div).prepend('<form class="navbar-form role="search">'+
    					'<div class="input-group add-on">'+
       					'<input id = "searchQtlTable" type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">'+
      		 			'<div class="input-group-btn">'+
@@ -96,6 +104,13 @@ function putGenesInTable(genes, div){
  	 			'</form>');
 	searchThroughTable('#searchQtlTable', div);
 	$.each(genes, function(i, gene){
+		if(gene.cgd_condition === undefined){
+			gene.cgd_condition = '';
+			gene.cgd_inheritance ='';
+		}
+		if(gene.description === undefined){
+			gene.description = '';
+		}
 		$('#significantQtlGeneTable').append('<tr><td data-ensembl="'+gene['ensembl']+'">'+
 											gene['ensembl']+ ':' +gene['name']+'</td>'+
 											'<td>'+gene['start']+'</td>'+
@@ -106,6 +121,7 @@ function putGenesInTable(genes, div){
 											'<td>'+gene['cgd_condition']+' - '+
 											gene['cgd_inheritance']+'</td>'+
 											'<td class="gwas '+gene['ensembl']+'"></td>'+
+											'<td id="effect-'+gene.ensembl+'"></td>'+
 											'<td>'+gene['lodScore']+'</td></tr>');
 		if(gene['gwas'].length > 0){
 			$.each(gene['gwas'], function(i, gwas){
@@ -113,6 +129,7 @@ function putGenesInTable(genes, div){
 													gwas['trait']+'</p>');
 			});
 		};
+		getGeneEffect(gene.ensembl, function(geneId, effect){$('#effect-'+geneId).html(effect)});
 		var omim_acc = gene['omim_acc'].substring(2, gene['omim_acc'].length-2).split(/\', \'[ ]?/);
 		var omim_desc = gene['omim_desc'].substring(1, gene['omim_desc'].length-1).split(/\', \'[ ]?/);
 		$.each(omim_acc, function(i, acc){
@@ -150,3 +167,14 @@ function searchThroughTable(searchDiv, tableDiv){
     	});
     }); 
 };
+
+function getGeneEffect(geneId, callback){
+	/**This function calls an R script which gets the number of patients with the gene deleted, duplicated, or just two copies*/
+	$.get('/scripts/getGeneEffect/run?geneId='+geneId).done(function(data){
+		data = data.split('[1] ');
+		del = data[1];
+		normal = data[2];
+		dup = data[3];
+		callback(geneId, 'del: '+del+'<br/>normal: '+normal+'<br/>dup: '+dup);
+	});
+}
