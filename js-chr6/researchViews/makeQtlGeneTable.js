@@ -26,6 +26,17 @@ function getGenes(symptom, threshold, div){
 						});
 						//put the genes in the table
 						putGenesInTable(geneInformation, div);
+						//make gwas traits clickable and link to related article
+						$('.gwas p').click(function(){window.open($(this).data('pubmed'))});
+						//change color and font weight on hover
+						$('.gwas p').hover(function(){
+							$(this).css('color', 'blue');
+							$(this).css('font-weight', 'bold');
+							});
+						$('.gwas p').mouseout(function(){
+							$(this).css('color', 'black');
+							$(this).css('font-weight', 'normal');
+							});
 					});
 				});
 			});
