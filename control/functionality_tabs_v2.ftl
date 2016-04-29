@@ -312,21 +312,23 @@
 			addToSearch('BMI > 30',  '#qtlSymptomSelection');
 			addToSearch('BMI > 25',  '#qtlSymptomSelection');
    		 	addToSearch('Loose connective tissue',  '#qtlSymptomSelection');
-			processGeneData();
-			$('.selectQtlSymptom').select2();
-			var symptom;
-			var threshold;
-			$.getScript('/js/js-chr6/lib/cyto-chromosome/cyto-chromosome.js').done(function(){
-				cyto_chr.modelLoader.setDataDir('https://raw.githubusercontent.com/linjoey/cyto-chromosome-vis/master/data/');
-				var chromosomeFactory = cyto_chr.chromosome;
-				$('#target_chr6_plot').css('margin-left', '4em');
-				var chr_6 = chromosomeFactory().segment('6').target('#target_chr6_plot').showAxis(true).width(1100).render();
-			});
-			$('#mooiKnopje').click(function(){
-				symptom = $('.selectQtlSymptom').select2('data');
-				if(symptom !== null){
-					scanPhenotypeData([symptom]);
-				};
+   		 	$( document ).ready(function() {
+				processGeneData();
+				$('.selectQtlSymptom').select2();
+				var symptom;
+				var threshold;
+				$.getScript('/js/js-chr6/lib/cyto-chromosome/cyto-chromosome.js').done(function(){
+					cyto_chr.modelLoader.setDataDir('https://raw.githubusercontent.com/linjoey/cyto-chromosome-vis/master/data/');
+					var chromosomeFactory = cyto_chr.chromosome;
+					$('#target_chr6_plot').css('margin-left', '4em');
+					var chr_6 = chromosomeFactory().segment('6').target('#target_chr6_plot').showAxis(true).width(1100).render();
+				});
+				$('#mooiKnopje').click(function(){
+					symptom = $('.selectQtlSymptom').select2('data');
+					if(symptom !== null){
+						scanPhenotypeData([symptom]);
+					};
+				});
 			});
 		});
 	});
