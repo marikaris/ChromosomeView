@@ -1,6 +1,8 @@
 var geneInformation = [];
+var geneCounts = {};
 function getGenes(symptom, threshold, div){
 /**This function gets the genes with significant lodscore from the R api*/
+	getGeneCounts(threshold);
 	$.get('/scripts/getSignificantGenes/run?threshold='+threshold+'&symptom='+symptom).done(function(qtlData){
 		geneInformation = [];
 		var deferredObj = $.Deferred();
@@ -26,17 +28,6 @@ function getGenes(symptom, threshold, div){
 						});
 						//put the genes in the table
 						putGenesInTable(geneInformation, div);
-						//make gwas traits clickable and link to related article
-						$('.gwas p').click(function(){window.open($(this).data('pubmed'))});
-						//change color and font weight on hover
-						$('.gwas p').hover(function(){
-							$(this).css('color', 'blue');
-							$(this).css('font-weight', 'bold');
-							});
-						$('.gwas p').mouseout(function(){
-							$(this).css('color', 'black');
-							$(this).css('font-weight', 'normal');
-							});
 					});
 				});
 			});
@@ -101,18 +92,18 @@ function getGwasInfo(id, callback){
 function putGenesInTable(genes, div){
 	/**This function puts given genes in a table with their information*/
 	$(div).html('<table class="table table-hover"><thead><tr><th>Gene name</th>'+
-				'<th>Start position</th><th>Stop position</th><th>Description</th>'+
-				'<th>Gene type</th><th>OMIM</th><th>CGD</th><th>GWAS catalog</th>'+
-				'<th>Patients</th><th>Qtl lodscore</th>'+
-				'</tr></thead><tbody id="significantQtlGeneTable"></tbody></table>');
+			'<th>Start position</th><th>Stop position</th><th>Description</th>'+
+			'<th>Gene type</th><th>OMIM</th><th>CGD</th><th>GWAS catalog</th>'+
+			'<th>Patients</th><th>Qtl lodscore</th>'+
+			'</tr></thead><tbody id="significantQtlGeneTable"></tbody></table>');
 	$(div).prepend('<form class="navbar-form role="search">'+
-   					'<div class="input-group add-on">'+
-      					'<input id = "searchQtlTable" type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">'+
-     		 			'<div class="input-group-btn">'+
-       						'<span class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></span>'+
-      					'</div>'+
-    				'</div>'+
- 	 			'</form>');
+					'<div class="input-group add-on">'+
+  					'<input id = "searchQtlTable" type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">'+
+ 		 			'<div class="input-group-btn">'+
+   						'<span class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></span>'+
+  					'</div>'+
+				'</div>'+
+	 			'</form>');
 	searchThroughTable('#searchQtlTable', div);
 	$.each(genes, function(i, gene){
 		if(gene.cgd_condition === undefined){
@@ -148,6 +139,17 @@ function putGenesInTable(genes, div){
 			description = description.charAt(0).toUpperCase() + description.slice(1).toLowerCase();
 			$('.omim.'+gene['ensembl']).append('<p data-omim="'+acc+'">'+description+'</p><br/>');
 		});
+		if(genes.length-1 === i){
+			//make gwas traits clickable and link to related article
+			$('.gwas p').click(function(){window.open($(this).data('pubmed'))});
+			//change color and font weight on hover
+			$('.gwas p').hover(function(){
+				$(this).css('color', 'blue');
+				});
+			$('.gwas p').mouseout(function(){
+				$(this).css('color', 'black');
+				});
+		}
 	});
 };
 function ajax(url) {
@@ -178,14 +180,24 @@ function searchThroughTable(searchDiv, tableDiv){
     	});
     }); 
 };
-
+function getGeneCounts(threshold){
+	/**This function retrieves all genes that are significant above a given threshold for a phenotype*/
+	ajax('http://localhost:8080/scripts/getGenesOfPhenotype/run?threshold='+threshold).then(
+			function(data){
+		data = data.split('[1]');
+		geneCounts = JSON.parse(JSON.parse(data[1]));
+		geneCounts.genePos = {};
+		$.each(geneCounts.genes, function(i, gene){
+			geneCounts.genePos[gene] = i;
+		});
+	});
+};
 function getGeneEffect(geneId, callback){
 	/**This function calls an R script which gets the number of patients with the gene deleted, duplicated, or just two copies*/
-	$.get('/scripts/getGeneEffect/run?geneId='+geneId).done(function(data){
-		data = data.split('[1] ');
-		del = data[1];
-		normal = data[2];
-		dup = data[3];
-		callback(geneId, 'del: '+del+'<br/>normal: '+normal+'<br/>dup: '+dup);
-	});
+	genePos = geneCounts.genes.indexOf(geneId);
+	callback(geneId, '<small><p class="del">'+geneCounts['pheno.del'][genePos]+
+			'</p>/<p class="norm">'+geneCounts['pheno.norm'][genePos]+'</p>/<p class="dup">'+
+			geneCounts['pheno.dup'][genePos]+'</p><p class="del">'+geneCounts['norm.del'][genePos]+
+			'</p>/<p class="norm">'+geneCounts['norm.norm'][genePos]+'</p>/<p class="dup">'+
+			geneCounts['norm.dup'][genePos]+'</p></small>');
 }

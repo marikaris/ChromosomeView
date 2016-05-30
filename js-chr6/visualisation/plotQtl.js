@@ -2,9 +2,9 @@
 var qtlData;
 /*This file should make a qtl plot on molgenis from a processed R file which returns HTML output (qtlcharts)*/
 function plotQtl(div, symptom){
+	/**This function plots the qtl using an R script*/
 	$.get('/scripts/plot_qtl/run?symptom='+symptom).done(function(data){
 		var data = extractBodyFromHTML(data);
-		//var dataURI = createDataUri(data);
 		$(div).html(data);
 		runScanone();
 	});
@@ -90,7 +90,7 @@ function getMaxQtlPeek(symptom, log_threshold, callback, thresholdDiv, alpha){
 	});
 };
 function calculateThreshold(alpha, thresholdDiv, symptom, div){
-/**This function calculates the threshold of the qtl lod score, by alling an R script, using a given alpha value,
+/**This function calculates the threshold of the qtl lod score, by calling an R script, using a given alpha value,
 then it puts the threshold in the plot*/
 	$.get('/scripts/getThreshold/run?symptom='+symptom+'&alpha='+alpha).done(function(data){
     	//split the output on [1], because lots of irrelevant information is returned

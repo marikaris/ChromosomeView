@@ -247,7 +247,7 @@ function selectPatientsInRegion(start, stop){
 	/*A query is called on the v2 api from molgenis with the start position and stop position
 	* of the region, to get the patients in between
 	*/
-	$.get('/api/v2/chromosome6_array?attrs=ownerUsername&q=Chromosoom==6;Start_positie_in_Hg19=le='+
+	$.get('/api/v2/chromosome6_array?attrs=~id,ownerUsername&q=Chromosoom==6;Start_positie_in_Hg19=le='+
 		stop+';Stop_positie_in_Hg19=ge='+start).done(function(patients){
 		//get the patients that match the query
 		var selected = patients['items'];
@@ -548,14 +548,17 @@ function getSymptoms(selectedSymptoms, callback){
 	var wait = $.Deferred();
 	$.each(selectedSymptoms, function(i, symptom){
 		var symptom = symptom.text;
+		//bmi > 30 is not in the questionnaire, has to be calculated
 		if(symptom ==='BMI > 30'){
 			symptomMatches.obesity = [];
 			symptomList.push('obesity');
 			getFatties('obesity');
+		//bmi > 25 is not in the questionnaire, has to be calculated
 		}else if(symptom ==='BMI > 25'){
 			symptomMatches.overweight = [];
 			symptomList.push('overweight');
 			getFatties('overweight');
+		//loose connective tissue problem means having at least one of several symptoms
 		}else if(symptom === 'Loose connective tissue'){
 			symptomList.push('hypermobility_joints');
 			symptomList.push('pes_planus');
@@ -565,12 +568,17 @@ function getSymptoms(selectedSymptoms, callback){
 			symptomList.push('Abnormality_of_the_thorax');
 			symptomList.push('Loose_connective_tissue');
 			symptomMatches.Loose_connective_tissue = [];
+		//get the name of the symptom in the questionnaire
 		}else if(symptom.indexOf(':') >=0){
 			var refAndPheno = symptom.split(': ');
+			//the reference entity is the name before the :
 			var ref = refAndPheno[0];
+			//the specified symptom that can be found in the reference entity is after the :
 			var phenotype = refAndPheno[1];
 			$.get('/api/v2/'+ref).done(function(refData){
+				//get the id attribute from the reference entity
 				var id = refData['meta']['attributes'][0]['name'];
+				//if the id attribute in the reference entity is HPO and the HPO is longer than 1 character, use this name as name for the symptom
 				if(id ==='HPO'){
 					var refItems = refData['items'];
 					$.each(refItems, function(i, item){
@@ -586,6 +594,7 @@ function getSymptoms(selectedSymptoms, callback){
 				}else{
 					symptomList.push(phenotype);
 				}
+				//if the selection is as big as the symptomlist, the forloop is done and the deferred object can resolve
 				if(selectedSymptoms.length === symptomList.length){
 					wait.resolve();
 				}
@@ -700,6 +709,7 @@ function checkQuestionnaireData(symptomList, cutOffClass, inputDiv, callbackFunc
 								if($.inArray(name, symptomMatches.overweight) > -1){
 									matchCount[name] += 1;
 								}
+								//if loose connective tissue is a symptom to look for, get all patients with at least one of the symptoms
 								if(symptomMatches.Loose_connective_tissue !== undefined){
 									if($.inArray(name, symptomMatches.hypermobility_joints) > -1){
 										matchCount[name] += 1;
@@ -1049,15 +1059,23 @@ function exportPhenoTable(tableDiv, filename){
 	link.click();
 };
 function getFatties(type){
+	/**this function gets all patients with obesity or overweight (based on the specified type, given as parameter, 
+	 * this is a string with in it "obesity" or "overweight")*/
 	if(type === 'obesity'){
-		$.get('/api/v2/chromome6_i_L?attrs=ownerusername&q=comments=q=hasobesity').done(function(patientsWithObesity){
+		/*push all patients with hasobesity in the comments to the symptommatches of patients with obesity (when in literature obesity was described, 
+		 * but length and weight were not given, hasobesity was put in comments
+		 */
+		$.get('/api/v2/chromome6_i_L?attrs=~id,ownerusername&q=comments=q=hasobesity').done(function(patientsWithObesity){
 			var items = patientsWithObesity.items;
 			$.each(items, function(i, patient){
 				symptomMatches.obesity.push(patient.ownerUsername);
 			});
 		});
+	/*push all patients with hasoverweight in the comments to the symptommatches of patients with overweight (when in literature overweight was described, 
+	 * but length and weight were not given, hasoverweight was put in comments
+	 */
 	}else if(type === 'overweight'){
-		$.get('/api/v2/chromome6_i_L?attrs=ownerusername&q=comments=q=hasobesity,comments=q=hasoverweight').done(function(patientsWithOverweight){
+		$.get('/api/v2/chromome6_i_L?attrs=~id,ownerusername&q=comments=q=hasobesity,comments=q=hasoverweight').done(function(patientsWithOverweight){
 			var items = patientsWithOverweight.items;
 			$.each(items, function(i, patient){
 				symptomMatches.overweight.push(patient.ownerUsername);
@@ -1066,16 +1084,21 @@ function getFatties(type){
 	};	
 	$.get('/api/v2/chromosome6_a_c').done(function(data){
 		var patients = data.items;
+		//get for all patients the measurementdate, the height in cm and the weight in cm 
 		$.each(patients, function(i, patient){
 			var mDate = patient.measurement_date;
 			var height = patient.height_cm;
 			var weight = patient.weight_kg;
+			//if none of the weight, length and measurement date are undefined, get the birthdate and estimate the age
 			if(weight !== undefined && height !== undefined && mDate !== undefined){
 				var bDate = patient.birthdate;
 				var age = calculateAge(bDate, mDate);
+				//if the age is bigger than one (so 2 or more, the BMI can be used to estimate overweight/obesity)
 				if (age > 1){
+					//get the gender of the patient
 					var gender = patient.gender.id;
 					var BMI = calculateBMI(height, weight);
+					//determine if the patient has obesity/overweight
 					if(type==='obesity'){
 						var obesity = hasObesity(age, gender, BMI);
 						if(obesity){
@@ -1093,15 +1116,21 @@ function getFatties(type){
 	});
 };
 function calculateAge(bDate, mDate){
+	/**This function is used to estimate the patient's age*/
 	bDate = bDate.split('-');
+	//the birthdate is splitted to get the day month and year of birth
 	var bYear = bDate[0];
 	var bMonth = bDate[1];
 	var bDay = bDate[2];
 	mDate = mDate.split('-');
+	//the measurementdate is splitted to get the day month and year of measurement
 	var mYear = mDate[0];
 	var mMonth = mDate[1];
 	var mDay = mDate[2];
+	//calculate the age roughly
 	var age = mYear-bYear;
+	/*determine whether the patient's birthday was before or after the measurement date and based on that the age was correct, 
+	 * or the age should be the estimated age minus one*/
 	if(mMonth-bMonth < 0){
 		age -= 1;
 	}else if(mMonth-bMonth === 0){
@@ -1112,12 +1141,16 @@ function calculateAge(bDate, mDate){
 	return age;
 };
 function calculateBMI(height, weight){
+	/**This function calculates the bmi of a patient, based on length and weight*/
 	height = height/100
 	return weight/(height*height);
 };
 function hasObesity(age, gender, BMI){
+	/**this function needs the age, gender and bmi of a patient and determines whether the patient has obesity*/
 	var obesityThreshold;
+	//if the age is below 18, BMI thresholds are estimated based on growthdiagrams
 	if(age < 18){
+		//the threshold for obesity for different ages until 17 and for the both genders
 		var obesityVals = {
 				'm':{
 					'2':19.81,
@@ -1158,8 +1191,10 @@ function hasObesity(age, gender, BMI){
 		obesityThreshold = obesityVals[gender][age];
 		
 	}else{
+		//obesity threshold for patients of 18 or older is 30 for both genders
 		obesityThreshold = 30;
 	};
+	//if the patients bmi is below the threshold, the patient is not obese
 	if(BMI < obesityThreshold){
 		return false;
 	}else{
@@ -1167,7 +1202,9 @@ function hasObesity(age, gender, BMI){
 	};
 };
 function hasOverweight(age, gender, BMI){
+	/**this function estimates whether a patient has overweight bases on age, gender, and bmi*/
 	var owThreshold;
+	//if the age is below 18, BMI thresholds are estimated based on growthdiagrams
 	if(age < 18){
 		var owVals = {
 				'm':{
@@ -1209,8 +1246,10 @@ function hasOverweight(age, gender, BMI){
 		owThreshold = owVals[gender][age];
 		
 	}else{
+		//overweight threshold for patients of 18 or older is 25 for both genders
 		owThreshold = 25;
 	};
+	//if the patients bmi is below the threshold, the patient is not overweight
 	if(BMI < owThreshold){
 		return false;
 	}else{

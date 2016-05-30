@@ -129,7 +129,7 @@
         $(this).removeClass('active');
     });
     $('#phenotypeView').click(function(){
-    	//patient views chromosome bar should become empty because the bar in the patient view, may conflict with the phenotype view
+    	<#--patient views chromosome bar should become empty because the bar in the patient view, may conflict with the phenotype view-->
     	$("#patient_chromosome").html('');
     	$('#patient_information').css('display', 'none');
         $("#showPheno").css('display', 'inline');
@@ -167,21 +167,22 @@
         $("#show_chr6").css('display', 'inline');
     });
     <#--This piece of code makes the phenotype view view-->
-    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/7cb5d321b350201eb97aec9a30fae02e2e72d58f/phenotypeViewer_v2.js', function(){
-    	getPhenotypes('/api/v2/chromosome6_a_c');
-   	 	getPhenotypes('/api/v2/chromome6_d_h');
-    	getPhenotypes('/api/v2/chromome6_i_L');
+    $.getScript('https://rawgit.com/marikaris/6eedaa926f01c7cf78eb/raw/d5e0e6b332dbb70ed8c2bfbd7d76b54742351a7a/phenotypeViewer_v2.js', function(){
+    	getPhenotypes('/api/v2/chromosome6_a_c', '#tagPicker_phenotype');
+   	 	getPhenotypes('/api/v2/chromome6_d_h', '#tagPicker_phenotype');
+    	getPhenotypes('/api/v2/chromome6_i_L', '#tagPicker_phenotype');
     	$.get('/api/v2/gender', function(genderInfo){
     		genders = genderInfo['items'];
     		<#--The select2 searchbar will be filled with genders-->
     		$.each(genders, function(index, gender){
-    			addToSearch('gender: '+gender['label']);
+    			addToSearch('gender: '+gender['label'], '#tagPicker_phenotype');
     		});
    		 });
+   		 addToSearch('Loose connective tissue',  '#tagPicker_phenotype');
     	$('#search_button_phenotype').on('click', function(){
     		emptyChecked();
     		var selected = $('#tagPicker_phenotype').select2('data');
-    		getSymptoms(selected);	
+    		getSymptoms(selected, addPatients);	
     	});	
     	$('body').on('click', '.check_span', function(){
     		var patient = $(this).text().replace(' ', '');

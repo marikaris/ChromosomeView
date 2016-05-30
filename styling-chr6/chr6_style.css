@@ -119,3 +119,9 @@ a{
 	margin-left: 5em;
 	margin-top: 3em;
 }
+.del{
+	color:red;
+}
+.dup{
+	color:blue;
+}
