@@ -1,5 +1,4 @@
 library(qtl)
-#load data of different traits (files generated using CAT)
 data_ob <- read.cross("csvr", "/Users/mslofstra/Documents/afstuderen", 'qtl_ob.csv',  header=F)
 data_ob <- calc.genoprob(data_ob)
 data_ov <- read.cross("csvr", "/Users/mslofstra/Documents/afstuderen", 'qtl_ov.csv',  header=F)
@@ -12,7 +11,6 @@ data_brain1 <- read.cross("csvr", "/Users/mslofstra/Documents/afstuderen", 'qtl_
 data_brain1 <- calc.genoprob(data_brain1)
 data_loose <- read.cross("csvr", "/Users/mslofstra/Documents/afstuderen", 'qtl_loose.csv',  header=F)
 data_loose <- calc.genoprob(data_loose)
-#do scan one for all traits
 pheno.data_brain <- scanone(data_brain, chr=6, model = "binary")
 pheno.data_brain_filtered <- scanone(data_brain1, chr=6, model = "binary")
 pheno.data_cardiac <- scanone(data_car, chr=6, model = "binary")
@@ -20,28 +18,58 @@ pheno.data_overweight <- scanone(data_ov, chr=6, model = "binary")
 pheno.data_obesity <- scanone(data_ob, chr=6, model = "binary")
 pheno.data_loose_tissue <- scanone(data_loose, chr=6, model = "binary")
 #Plot significant phenotypes together
-plot(pheno.data_obesity, main ='Genotype-phenotype linkage on chromosome 6', 
-     xlab='Position on chromsome 6 (basepairs)', col='red', ylab="Lod score")
+plot(pheno.data_obesity, main ='Genotype-phenotype linkage on chromosome 6',
+     xlab='Position on chromsome 6 (basepairs)', ylab="Lod score", col="red")
 plot(pheno.data_overweight, add=TRUE, col='darkorange', lty='dotted', lwd=3)
 plot(pheno.data_loose_tissue, add=TRUE, col='deepskyblue')
 plot(pheno.data_cardiac, add=TRUE, col='chartreuse')
 #make a legend
-legend(0, 10, c('heart anomalies', 'loose connective tissue', 'obesity', 'overweight'), 
-    lty=c(1,1,1,3), lwd=c(3,3),col=c('chartreuse', 'deepskyblue', 'red', 'darkorange'), cex=0.7)
-#function that can plot a gene, given the trait, ensembl id and color
-plot.gene <-function(data.trait, ensembl.id, gene.name, color){
-  #get the lodscore of the gene
-  lod <- data.trait[which(rownames(data.trait)==ensembl.id),]$lod
-  #get the position of the gene
-  pos <- data.trait[which(rownames(data.trait)==ensembl.id),]$pos
-  points(pos, lod, lwd=5, col=color)
-  text(pos, lod+0.4, labels=c(gene.name), cex=0.9)
+legend(70000000, 10, c('Heart anomalies', 'Connective tissue disorder', 'Obesity', 'Overweight'), 
+       lty=c(1,1,1,3), lwd=c(3,3),col=c('chartreuse', 'deepskyblue', 'red', 'darkorange'), cex=1.5)
+#
+#make plot for smaller region with significant genes marked
+plot(pheno.data_obesity, main ='Genotype-phenotype linkage on chromosome 6 (region 70MB-110MB)',
+     xlab='Position on chromsome 6 (basepairs)', ylab="Lod score", xlim=c(70000000, 110000000), type="n")
+plot.significantMarkers <- function(pheno.data, color, threshold){
+  pheno.data$colour = 'grey'
+  pheno.data$colour[as.numeric(pheno.data$lod) > threshold] = color
+  plot(pheno.data, add=TRUE, col='grey', lwd=2)
+  points(pheno.data$pos, pheno.data$lod, col=pheno.data$colour, lwd=2)
 }
-#plot sim1 for obesity and overweight and col12a1 for loose connective tissue disorder
-plot.gene(pheno.data_loose_tissue, 'ENSG00000111799', 'COL12A1', 'deepskyblue')
-plot.gene(pheno.data_overweight, 'ENSG00000112246', 'SIM1', 'darkorange')
-plot.gene(pheno.data_obesity, 'ENSG00000112246', 'SIM1', 'red')
-#calculate permutations to estimate thresholds using 1000 permutations
+plot.significantMarkers(pheno.data_obesity, 'tomato', 3.5)
+plot.significantMarkers(pheno.data_overweight, 'pink', 3.4)
+plot.significantMarkers(pheno.data_loose_tissue, 'deepskyblue', 3.4)
+plot.significantMarkers(pheno.data_cardiac, 'chartreuse', 3.1)
+
+#plot genes in the plot
+plot.gene <-function(data.trait, ensembl.id, gene.name, color){
+  lod <- data.trait[which(rownames(data.trait)==ensembl.id),]$lod
+  pos <- data.trait[which(rownames(data.trait)==ensembl.id),]$pos
+  points(pos, lod, lwd=5, col=color, pch=19)
+  text(pos+2300000, lod, labels=c(gene.name), cex=1.2)
+}
+plot.gene(pheno.data_loose_tissue, 'ENSG00000111799', 'COL12A1', 'blue')
+plot.gene(pheno.data_overweight, 'ENSG00000112246', 'SIM1', 'hotpink')
+plot.gene(pheno.data_obesity, 'ENSG00000112246', 'SIM1', 'darkred')
+plot.gene(pheno.data_obesity, 'ENSG00000186231', 'KLHL32', 'darkred')
+plot.gene(pheno.data_overweight, 'ENSG00000186231', 'KLHL32', 'hotpink')
+plot.gene(pheno.data_obesity, 'ENSG00000152034', 'MCHR2', 'darkred')
+plot.gene(pheno.data_overweight, 'ENSG00000152034', 'MCHR2', 'hotpink')
+plot.gene(pheno.data_obesity, 'ENSG00000184486', 'POU3F2', 'darkred')
+plot.gene(pheno.data_overweight, 'ENSG00000184486', 'POU3F2', 'hotpink')
+#make a legend for this plot
+legend(70000000, 10, c('Obesity - significantly linked - non candidate gene', 
+                       'Overweight - significantly linked - non candidate gene',
+                       'Connective tissue disorder - significantly linked - non candidate gene', 
+                       'Heart anomalies - significantly linked - non candidate gene',
+                       'Obesity - significantly linked - candidate gene',
+                       'Overweight - significantly linked - candidate gene',
+                       'Loose connective tissue - significantly linked - candidate gene',
+                       'Not significantly linked'
+                       ), 
+       col=c('tomato', 'pink', 'deepskyblue', 'chartreuse', 'darkred', 'hotpink', 'blue', 'grey'), 
+       pch=c(1,1,1,1,19, 19, 19, 1))
+#
 perms_hj <- scanone(data_loose, chr=6, pheno.col=1, model='binary',  n.perm=1000)
 cutoff_lod_hj <- summary(perms_hj, alpha=0.01)[,1]
 cutoff_lod_hj 
@@ -57,9 +85,7 @@ cutoff_lod_car
 perms_brain <- scanone(data_brain, chr=6, pheno.col=1, model='binary',  n.perm=1000)
 cutoff_lod_brain <- summary(perms_brain, alpha=0.01)[,1]
 cutoff_lod_brain
-#patients with no brain image performed, are filtered out here
 perms_brain_filtered<- scanone(data_brain1, chr=6, pheno.col=1, model='binary',  n.perm=1000)
-#get the genes that have lodscores above the threshold
 cutoff_lod_brain_filtered <- summary(perms_brain_filtered, alpha=0.01)[,1]
 cutoff_lod_brain_filtered
 selection_hj <- pheno.data_loose_tissue[which(pheno.data_loose_tissue$lod > cutoff_lod_hj),]
@@ -71,21 +97,33 @@ cutoff_lod_brain_filtered <- summary(perms_brain_filtered, alpha=0.01)[,1]
 cutoff_lod_brain_filtered
 selection_brain <- pheno.data_brain_filtered[which(pheno.data_brain_filtered$lod > cutoff_lod_brain_filtered),]
 print(selection_brain[order(selection_brain$lod, decreasing=TRUE),])
-#make a plot for brain anomalies with raw (all patients) and filtered (patients with no scan performed filtered out) data
+htmlPlot <- iplotScanone(pheno.data_brain_filtered, data_brain1)
+htmlwidgets::saveWidget(htmlPlot, 'brain.html', selfcontained=T)
 plot(pheno.data_brain, main="QTL plot for brain anomalies with raw and filtered data", 
      xlab='Chromosome 6 position in basepairs', ylab='LOD Score', col='chartreuse', lwd=3)
 plot(pheno.data_brain_filtered, add=TRUE, col='hotpink', lwd=3)
 legend(0, 3, c('Raw data', 'Filtered data', 'Threshold raw data', 'Threshold filtered data'), 
        lty=c(1,1,3,3), lwd=c(3,3,3,3),col=c('chartreuse', 'hotpink', 'darkgreen', 'deeppink4'))
-#calculate threshold with 10000 permutations
 perms_brain <- scanone(data_brain, chr=6, pheno.col=1, model='binary',  n.perm=10000)
 cutoff_lod_brain <- summary(perms_brain, alpha=0.01)[,1]
 cutoff_lod_brain
-#calculate threshold with 10000 permutations
 perms_brain_filtered<- scanone(data_brain1, chr=6, pheno.col=1, model='binary',  n.perm=10000)
 cutoff_lod_brain_filtered <- summary(perms_brain_filtered, alpha=0.01)[,1]
 cutoff_lod_brain_filtered
-#plot the thresholds in the plot 
 abline(h=cutoff_lod_brain_filtered, col='deeppink4', lwd=3, lty=3)
 abline(h=cutoff_lod_brain, col='darkgreen', lwd=3, lty=3)
-#with raw data, no significant peaks can be found
+abline(h=3.4, col='deepskyblue', lwd=3, lty=3)
+abline(h=3.5, col='red', lwd=3, lty=3)
+abline(h=, col='deeppink4', lwd=3, lty=3)
+
+get_significant_positions <- function(data, lod){
+    pheno.data <- scanone(data, model = "binary")
+    selection <- pheno.data[which(pheno.data$lod > lod),]
+    startpos <- min(selection[order(selection$lod, decreasing=TRUE),]$pos)
+    stoppos <- max(selection[order(selection$lod, decreasing=TRUE),]$pos)
+    print(paste(startpos, stoppos, sep='-'))
+}
+get_significant_positions(data_ob, 3.5)
+get_significant_positions(data_ov, 3.4)
+get_significant_positions(data_car, 3.1)
+get_significant_positions(data_loose, 3.5)
