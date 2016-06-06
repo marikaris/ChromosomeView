@@ -1,15 +1,24 @@
 library(qtl)
+#these files were generated for each phenotype, using the Chromosome 6 Project data 
+#obesity data
 data_ob <- read.cross("csvr", "/Users/mslofstra/Documents/afstuderen", 'qtl_ob.csv',  header=F)
 data_ob <- calc.genoprob(data_ob)
+#overweight data
 data_ov <- read.cross("csvr", "/Users/mslofstra/Documents/afstuderen", 'qtl_ov.csv',  header=F)
 data_ov <- calc.genoprob(data_ov)
+#cardiac anomaly data
 data_car <- read.cross("csvr", "/Users/mslofstra/Documents/afstuderen", 'qtl_car.csv',  header=F)
 data_car <- calc.genoprob(data_car)
+#brain anomaly data (unfiltered)
 data_brain <- read.cross("csvr", "/Users/mslofstra/Documents/afstuderen", 'qtl_brain.csv',  header=F)
 data_brain <- calc.genoprob(data_brain)
+#brain anomaly data with patients with no brain image performed filtered out
 data_brain1 <- read.cross("csvr", "/Users/mslofstra/Documents/afstuderen", 'qtl_brain_alt.csv',  header=F)
 data_brain1 <- calc.genoprob(data_brain1)
-data_loose <- read.cross("csvr", "/Users/mslofstra/Documents/afstuderen", 'qtl_loose.csv',  header=F)
+#data for connective tissue disorder/loose connective tissue
+data_loose <- read.cross("csvr", "/Users/
+#performing scan one
+mslofstra/Documents/afstuderen", 'qtl_loose.csv',  header=F)
 data_loose <- calc.genoprob(data_loose)
 pheno.data_brain <- scanone(data_brain, chr=6, model = "binary")
 pheno.data_brain_filtered <- scanone(data_brain1, chr=6, model = "binary")
@@ -127,3 +136,11 @@ get_significant_positions(data_ob, 3.5)
 get_significant_positions(data_ov, 3.4)
 get_significant_positions(data_car, 3.1)
 get_significant_positions(data_loose, 3.5)
+#make geno image
+geno.image(data_ob)
+#Enable drawing ouside plot
+par(xpd=TRUE)
+legend(0, -1, c('Deletion', 'Duplication', 'Not affected'), 
+       fill=c('#E12527', '#51AD4F', '#3B7FB6'))
+par(xpd=FALSE)
+
